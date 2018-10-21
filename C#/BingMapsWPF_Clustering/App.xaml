@@ -1,0 +1,9 @@
+﻿<Application x:Class="PhotoVis.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <ImageSource x:Key="Image_Greenpin">pack://application:,,,Resources/green_pin.png</ImageSource>
+        <BitmapImage x:Key="Bitmap_Greenpin" UriSource="../Resources/green_pin.png" />
+    </Application.Resources>
+</Application>

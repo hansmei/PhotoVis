@@ -1,0 +1,8 @@
+C:\Users\hamei\Downloads\Pushpin Clustering with the Bing Maps WPF control\C#\ClusterEngine\bin\Debug\ClusterEngine.dll
+C:\Users\hamei\Downloads\Pushpin Clustering with the Bing Maps WPF control\C#\ClusterEngine\bin\Debug\ClusterEngine.pdb
+C:\Users\hamei\Downloads\Pushpin Clustering with the Bing Maps WPF control\C#\ClusterEngine\bin\Debug\Microsoft.Maps.MapControl.WPF.dll
+C:\Users\hamei\Downloads\Pushpin Clustering with the Bing Maps WPF control\C#\ClusterEngine\bin\Debug\Microsoft.Maps.MapControl.WPF.xml
+C:\Users\hamei\Downloads\Pushpin Clustering with the Bing Maps WPF control\C#\ClusterEngine\obj\Debug\ClusterEngine.csprojResolveAssemblyReference.cache
+C:\Users\hamei\Downloads\Pushpin Clustering with the Bing Maps WPF control\C#\ClusterEngine\obj\Debug\ClusterEngine.csproj.CoreCompileInputs.cache
+C:\Users\hamei\Downloads\Pushpin Clustering with the Bing Maps WPF control\C#\ClusterEngine\obj\Debug\ClusterEngine.dll
+C:\Users\hamei\Downloads\Pushpin Clustering with the Bing Maps WPF control\C#\ClusterEngine\obj\Debug\ClusterEngine.pdb
