@@ -10,11 +10,11 @@ none
 false
 DEBUG;TRACE
 C:\dev\git\PhotoVis\C#\BingMapsWPF_Clustering\App.xaml
-11151548125
+6160492266
 
-16-1718008611
-17878664505
-MainWindow.xaml;
+351867912098
+221565063133
+MainWindow.xaml;StartWindow.xaml;AlternativeStart.xaml;Views\MapView.xaml;Views\NewProjectView.xaml;Views\ProjectView.xaml;
 
 False
 

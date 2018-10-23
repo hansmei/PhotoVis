@@ -1,0 +1,72 @@
+﻿<UserControl x:Class="PhotoVis.Views.NewProjectView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:PhotoVis.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="500" d:DesignWidth="500">
+    <Grid Width="700" HorizontalAlignment="Center">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="180"/>
+            <RowDefinition/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" Width="250">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="34"/>
+                <RowDefinition Height="34"/>
+                <RowDefinition Height="34"/>
+                <RowDefinition Height="34"/>
+                <RowDefinition Height="34"/>
+            </Grid.RowDefinitions>
+            
+            <Label Content="Enter a unique ID (use the project number)" Margin="5"/>
+            <TextBox Grid.Row="1" Name="ID" Text="{Binding ProjectId, UpdateSourceTrigger=PropertyChanged}" Margin="5"/>
+            <Label Grid.Row="2" Content="Enter a name for the new project" Margin="5"/>
+            <TextBox Grid.Row="3" Name="Name" Text="{Binding ProjectName, UpdateSourceTrigger=PropertyChanged}" Margin="5"/>
+            <Button Grid.Row="4" Content="Add folders" Command="{Binding Path=AddProjectFolderCommand}" Margin="5"/>
+        </Grid>
+        <Grid Grid.Row="1">
+            <ListView ItemsSource="{Binding IncludedPaths}">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Width="120" Header="Include subfolders">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <CheckBox IsChecked="{Binding IncludeSubfolders}" />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Width="400" Header="Path" DisplayMemberBinding="{Binding FolderPath}" />
+                        <GridViewColumn Header="Action">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Margin="6,2,6,2">
+                                        <Button Content="Delete" Command="{Binding Path=DataContext.RemoveProjectFolderCommand, 
+                                            RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ItemsControl}}}"
+                                                CommandParameter="{Binding FolderPath}"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+
+        </Grid>
+
+        <Grid Grid.Row="2" Width="250">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="34"/>
+                <RowDefinition Height="34"/>
+                <RowDefinition Height="34"/>
+                <RowDefinition Height="34"/>
+            </Grid.RowDefinitions>
+            <Button Content="Save project" Command="{Binding Path=SaveProjectCommand}" Margin="5"/>
+            <Button Grid.Row="1" Content="Open project" Command="{Binding Path=OpenProjectCommand}" Margin="5"/>
+            <Button Grid.Row="2" Content="Delete project" Command="{Binding Path=DeleteProjectCommand}" Margin="5"/>
+
+        </Grid>
+    </Grid>
+</UserControl>

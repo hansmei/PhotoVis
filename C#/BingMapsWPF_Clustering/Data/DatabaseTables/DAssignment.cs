@@ -9,10 +9,11 @@ namespace PhotoVis.Data.DatabaseTables
 
     class DAssignment
     {
-        public static string AssignmentNumber = "AssignmentNumber";
-        public static string AssignmentName = "AssignmentName";
+        public static string ProjectId = "ProjectId";
+        public static string ProjectName = "ProjectName";
         public static string Latitude = "Latitude";
         public static string Longitude = "Longitude";
-        public static string TimeIndexed = "TimeIndexed";
+        public static string TimeCreated = "TimeCreated";
+        public static string TimeLastIndexed = "TimeLastIndexed";
     }
 }

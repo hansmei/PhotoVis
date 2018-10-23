@@ -9,10 +9,11 @@ namespace PhotoVis.Data.DatabaseTables
     class DImageAtLocation
     {
         public static string Id = "ID";
-        public static string AssignmentNumber = "AssignmentNumber";
+        public static string ProjectId = "ProjectId";
         public static string ImagePath = "ImagePath";
         public static string Latitude = "Latitude";
         public static string Longitude = "Longitude";
+        public static string Altitude = "Altitude";
         public static string Heading = "Heading";
         public static string Rotation = "Rotation";
         public static string TimeImageTaken = "TimeImageTaken";

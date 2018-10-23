@@ -2,52 +2,38 @@
 using System.Collections.Generic;
 using System.Linq;
 using IO = System.IO;
-
 using Microsoft.Maps.MapControl.WPF;
-
 using MetadataExtractor;
 using MetadataExtractor.Formats.Exif;
 
 using PhotoVis.Data;
+using PhotoVis.Helpers;
 
 namespace PhotoVis.Util
 {
     class AssignmentIndexer
     {
 
-        public static void IndexImages()
+        public static void IndexImages(ProjectSingleFolder singleFolderToIndex)
         {
-            List<ImageAtLocation> images = GetImagesList();
-
+            List<ImageAtLocation> images = GetImagesList(singleFolderToIndex);
             foreach (ImageAtLocation img in images)
             {
                 img.SaveToDatabase();
             }
-
         }
 
-        public static List<ImageAtLocation> GetImagesList()
+        public static List<ImageAtLocation> GetImagesList(ProjectSingleFolder singleFolderToIndex)
         {
-            int assignmentNumber = 5141950;
-            string parentDirectory = "N:\\514\\19\\5141950\\6 Bilder";
-            //parentDirectory = "V:\\514\\70\\5147023\\6 Bilder";
             List<ImageAtLocation> list = new List<ImageAtLocation>();
 
             // Get all image files in directory and subdirectory
-            if (IO.Directory.Exists(parentDirectory))
+            if (IO.Directory.Exists(singleFolderToIndex.FolderModel.FolderPath))
             {
-                string[] images = IO.Directory.GetFiles(parentDirectory, "*.jpg", IO.SearchOption.AllDirectories);
-
-                //string[] images = new string[]
-                //{
-                //    //"C:\\dev\\temp\\IMG\\PANO_20180127_142702_14.jpg",
-                //    "C:\\dev\\temp\\IMG\\DSC_0482.JPG",
-                //    "C:\\dev\\temp\\IMG\\DSC_0483.JPG",
-                //    "C:\\dev\\temp\\IMG\\DSC_0484.JPG",
-                //    "C:\\dev\\temp\\IMG\\DSC_0485.JPG",
-                //    "C:\\dev\\temp\\IMG\\DSC_0486.JPG",
-                //};
-
+                IO.SearchOption method = singleFolderToIndex.FolderModel.IncludeSubfolders ? 
+                    IO.SearchOption.AllDirectories : IO.SearchOption.TopDirectoryOnly;
+                string[] images = IO.Directory.GetFiles(singleFolderToIndex.FolderModel.FolderPath, "*.jpg", method);
+                
                 foreach (string path in images)
                 {
                     IEnumerable<Directory> directories = ImageMetadataReader.ReadMetadata(path);
@@ -91,7 +77,7 @@ namespace PhotoVis.Util
 
                         list.Add(
                             new ImageAtLocation(
-                                assignmentNumber,
+                                singleFolderToIndex.ProjectId,
                                 new Location(location.Latitude, location.Longitude),
                                 path,
                                 imageTakenTime,

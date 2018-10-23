@@ -10,19 +10,27 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace PhotoVis
 {
     /// <summary>
-    /// Interaction logic for ProjectLoaderControl.xaml
+    /// Interaction logic for StartWindow.xaml
     /// </summary>
-    public partial class ProjectLoaderControl : UserControl
+    public partial class AlternativeStart : Window
     {
-        public ProjectLoaderControl()
+
+        public UserControl mapControl;
+
+        public AlternativeStart()
         {
             InitializeComponent();
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            MainWindow window = new MainWindow();
+            window.Show();
         }
     }
 }

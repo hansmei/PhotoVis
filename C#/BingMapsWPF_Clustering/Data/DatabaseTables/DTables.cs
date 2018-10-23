@@ -9,6 +9,7 @@ namespace PhotoVis.Data.DatabaseTables
     class DTables
     {
         public static string Assignments = "Assignments";
+        public static string Folders = "Folders";
         public static string Images = "Images";
     }
 }

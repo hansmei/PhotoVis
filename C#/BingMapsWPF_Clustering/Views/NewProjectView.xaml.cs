@@ -13,14 +13,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace PhotoVis
+namespace PhotoVis.Views
 {
     /// <summary>
-    /// Interaction logic for ImageMapDisplayControl.xaml
+    /// Interaction logic for NewProjectView.xaml
     /// </summary>
-    public partial class ImageMapDisplayControl : UserControl
+    public partial class NewProjectView : UserControl
     {
-        public ImageMapDisplayControl()
+        public NewProjectView()
         {
             InitializeComponent();
         }

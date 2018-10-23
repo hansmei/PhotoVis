@@ -11,13 +11,16 @@ namespace PhotoVis.Util
 
     public class DatabaseConnection
     {
-        private static string connectionString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=\"" + App.CommonFilesRootPath + "NoVis.mdb\"";
+        //private static string connectionString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=\"" + App.PhotoVisDataRoot + "NoVis.mdb\"";
         private static OleDbConnection dbConnection;
+        private int projectId;
 
         public DatabaseConnection()
         {
             if (dbConnection == null)
             {
+                DatabaseInitializer dbinit = new DatabaseInitializer();
+                string connectionString = dbinit.GetConnectionString();
                 dbConnection = new OleDbConnection(connectionString);
                 dbConnection.Open();
             }
@@ -122,8 +125,8 @@ namespace PhotoVis.Util
             foreach (KeyValuePair<string, object> pair in rowValues)
             {
                 columns.Add(this.escapeString(pair.Key));
-
-                if (pair.Value.GetType() == typeof(DateTime))
+                Type t = pair.Value.GetType();
+                if (t == typeof(DateTime))
                 {
                     DateTime time = (DateTime)pair.Value;
                     values.Add("#'" + time.ToString("yyyy-MM-dd HH:mm:ss") + "'#");
@@ -153,6 +156,101 @@ namespace PhotoVis.Util
 
             return numRowsAffected;
 
+        }
+
+        public int UpdateValue(string table, Dictionary<string, object> where, Dictionary<string, object> rowValues)
+        {
+            int counter = 1;
+
+            // Prepare the value fields and insert fields
+            string updates = "";
+            for (int i = 0; i < rowValues.Count; i++)
+            {
+                updates += "{" + counter++ + "} = {" + counter++ + "}";
+            }
+
+            string condition = "";
+            for (int i = 0; i < where.Count; i++)
+            {
+                condition += "{" + counter++ + "} = {" + counter++ + "}";
+                if (i != where.Count - 1)
+                    condition += " AND ";
+            }
+
+            // Prepare arguments
+            List<string> arguments = new List<string>();
+            arguments.Add(table);
+            foreach (KeyValuePair<string, object> pair in rowValues)
+            {
+                arguments.Add(this.escapeString(pair.Key));
+
+                if (pair.Value.GetType() == typeof(DateTime))
+                {
+                    DateTime time = (DateTime)pair.Value;
+                    arguments.Add("#'" + time.ToString("yyyy-MM-dd HH:mm:ss") + "'#");
+                }
+                else
+                {
+                    arguments.Add(this.sqlQuoteOrDefault(this.escapeString(pair.Value.ToString())));
+                }
+            }
+
+            foreach (KeyValuePair<string, object> pair in where)
+            {
+                arguments.Add(this.escapeString(pair.Key));
+                if (pair.Value.GetType() == typeof(DateTime))
+                {
+                    DateTime time = (DateTime)pair.Value;
+                    arguments.Add("#'" + time.ToString("yyyy-MM-dd HH:mm:ss") + "'#");
+                }
+                else
+                {
+                    arguments.Add(this.sqlQuoteOrDefault(this.escapeString(pair.Value.ToString())));
+                }
+            }
+
+            string commandString = "UPDATE {0} SET " + updates + " WHERE " + condition + ";";
+            string sqlString = string.Format(commandString, arguments.ToArray());
+            int numRowsAffected = this.query(sqlString);
+
+            return numRowsAffected;
+        }
+
+
+        public int DeleteValue(string table, Dictionary<string, object> where)
+        {
+            int counter = 1;
+            
+            string condition = "";
+            for (int i = 0; i < where.Count; i++)
+            {
+                condition += "{" + counter++ + "} = {" + counter++ + "}";
+                if (i != where.Count - 1)
+                    condition += " AND ";
+            }
+
+            // Prepare arguments
+            List<string> arguments = new List<string>();
+            arguments.Add(table);
+            foreach (KeyValuePair<string, object> pair in where)
+            {
+                arguments.Add(this.escapeString(pair.Key));
+                if (pair.Value.GetType() == typeof(DateTime))
+                {
+                    DateTime time = (DateTime)pair.Value;
+                    arguments.Add("#'" + time.ToString("yyyy-MM-dd HH:mm:ss") + "'#");
+                }
+                else
+                {
+                    arguments.Add(this.sqlQuoteOrDefault(this.escapeString(pair.Value.ToString())));
+                }
+            }
+
+            string commandString = "DELETE FROM {0} WHERE " + condition + ";";
+            string sqlString = string.Format(commandString, arguments.ToArray());
+            int numRowsAffected = this.query(sqlString);
+
+            return numRowsAffected;
         }
 
         public DataTable QueryToArray(string sql)
@@ -226,6 +324,14 @@ namespace PhotoVis.Util
             else if (field == "NOT NULL")
             {
                 field = "NOT NULL";
+            }
+            else if (field.ToLower() == "true")
+            {
+                field = "1";
+            }
+            else if (field.ToLower() == "false")
+            {
+                field = "0";
             }
             else
             {

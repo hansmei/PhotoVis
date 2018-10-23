@@ -7,7 +7,7 @@ namespace PhotoVis.Interfaces
     {
         int ID { get; }
 
-        int AssignmentNumber { get; set; }
+        int ProjectId { get; set; }
         string ImagePath { get; set; }
 
         Location Location { get; set; }
