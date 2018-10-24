@@ -19,10 +19,12 @@ namespace PhotoVis
         //public static string CommonFilesRootPath = ConfigurationManager.AppSettings.Get("CommonFilesRootPath");
         public static readonly string AppDataRoot = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
         public static readonly string PhotoVisDataRoot = Path.Combine(AppDataRoot, "PhotoVis");
+        public static readonly string ProjctsDataRoot = Path.Combine(PhotoVisDataRoot, "Projects");
 
         public static DatabaseConnection DB;
         public static CultureInfo RegionalCulture;
         public static ApplicationViewModel VM;
+        public static MapViewModel MapVM;
 
         public App()
         {
@@ -33,6 +35,8 @@ namespace PhotoVis
             // Make sure some special folders exist
             if (!Directory.Exists(PhotoVisDataRoot))
                 Directory.CreateDirectory(PhotoVisDataRoot);
+            if (!Directory.Exists(ProjctsDataRoot))
+                Directory.CreateDirectory(ProjctsDataRoot);
 
             // Create the database if it does not exist
             DatabaseInitializer init = new DatabaseInitializer();

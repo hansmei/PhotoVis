@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
+using System.Drawing;
+using System.IO;
+using System.Windows.Media.Imaging;
 using PhotoVis.Util;
 using PhotoVis.Data.DatabaseTables;
 
@@ -16,6 +19,7 @@ namespace PhotoVis.Models
         private ObservableCollection<ImageFoldersModel> _folders = new ObservableCollection<ImageFoldersModel>();
         private bool _hasBeenIndexed = false;
         private bool _hasDatabase = false;
+        private BitmapSource _thumbnail;
 
         #endregion // Fields
 
@@ -43,6 +47,19 @@ namespace PhotoVis.Models
                 {
                     _projectName = value;
                     OnPropertyChanged("ProjectName");
+                }
+            }
+        }
+
+        public BitmapSource Thumbnail
+        {
+            get { return _thumbnail; }
+            set
+            {
+                if (value != _thumbnail)
+                {
+                    _thumbnail = value;
+                    OnPropertyChanged("Thumbnail");
                 }
             }
         }
@@ -95,6 +112,7 @@ namespace PhotoVis.Models
         {
             this._projectId = id;
             this._projectName = name;
+            this.SetThumbnailSource();
         }
 
         public ProjectModel(DataRow row)
@@ -102,9 +120,32 @@ namespace PhotoVis.Models
             this.ProjectId = int.Parse(row[DAssignment.ProjectId].ToString());
             this.ProjectName = row[DAssignment.ProjectName].ToString();
             this.HasDatabase = true;
-            
+
             //this.TimeCreated = DateTime.Parse(row[DAssignment.TimeCreated].ToString());
             //this.TimeLastIndexed = DateTime.Parse(row[DAssignment.TimeLastIndexed].ToString());
+            this.SetThumbnailSource();
+        }
+
+        public void SetThumbnailSource()
+        {
+            string path = ImageHelper.GetProjectThumbnailPath(this.ProjectId);
+            if (File.Exists(path))
+            {
+                this.Thumbnail = new BitmapImage(new Uri(path));
+                //BitmapImage tmp = new BitmapImage(new Uri(path));
+                //this.Thumbnail = new BitmapImage();
+                //using (MemoryStream ms = new MemoryStream())
+                //{
+                //    tmp.StreamSource.CopyTo(ms);
+                //    Image img = Image.FromStream(ms, true);
+                //    this.Thumbnail = new B
+                //}
+            }
+            else
+            {
+                // TODO: Fix this
+                this.Thumbnail = null;
+            }
         }
 
         public static List<ProjectModel> LoadAllProjects()

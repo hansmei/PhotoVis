@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows;
 using System.Data;
+using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows.Input;
@@ -24,15 +25,15 @@ namespace PhotoVis.Views
     /// <summary>
     /// Interaction logic for MapView.xaml
     /// </summary>
-    public partial class MapView : UserControl, IView
+    public partial class MapView : UserControl
     {
-        public event EntityCollectionChangedEventHandler CollectionChanged;
-
-        private List<Entity> _imageData;
+        //private List<Entity> _imageData;
         private ClusterOptions _options;
         private bool _generatingData;
         private BackgroundWorker _worker;
 
+        private bool hasSavedSnapshot = false;
+        private bool canSaveSnapshot = false;
         private bool isShiftDown = false;
         private bool isMouseDown = false;
         private bool isOverlayActive = false;
@@ -55,14 +56,9 @@ namespace PhotoVis.Views
         public MapView()
         {
             InitializeComponent();
-
-            //(this.DataContext as MapViewModel).View = this;
-
             _options = new MyClusterOptions(20);
-
-            this.CollectionChanged += MapView_CollectionChanged;
-            this.LoadDatabaseImages();
-
+            
+            App.MapVM.ImageLocations.CollectionChanged += ImageLocations_CollectionChanged;
             this.PreparePolygon();
 
             //EntityCollection images = new EntityCollection();
@@ -104,30 +100,44 @@ namespace PhotoVis.Views
                 new MouseEventHandler(MapWithEvents_MouseMove);
 
             MyMap.KeyDown += MyMap_KeyDown;
-            
+
+            MyMap.Loaded += MyMap_Loaded;
         }
 
-        private void MapView_CollectionChanged(object sender, EntityCollectionChangedEventArgs e)
+        private void MyMap_Loaded(object sender, RoutedEventArgs e)
         {
-            throw new NotImplementedException();
+            this.canSaveSnapshot = true;
+        }
+
+        private void ImageLocations_CollectionChanged(object sender, EntityCollectionChangedEventArgs e)
+        {
+            this.ShowAllDataPointClustered();
+            if (this.canSaveSnapshot && !hasSavedSnapshot)
+            {
+                hasSavedSnapshot = true;
+                Task.Delay(600).ContinueWith(
+                    t => this.Dispatcher.Invoke(new Action(() => ImageHelper.SnapshotMap(App.MapVM.ProjectId, this.MyMap)))
+                    );
+            }
         }
         
-        public void LoadDatabaseImages()
-        {
-            //Background worker for populating data
-            _worker = new BackgroundWorker();
-            _worker.DoWork += (s, a) =>
-            {
-                PopulateImages((int)a.Argument);
-            };
-            _worker.RunWorkerCompleted += (s, a) =>
-            {
-                _generatingData = false;
-                StatusTbx.Text += "Loaded database.\r\n";
-                this.ShowAllDataPointClustered();
-            };
-            _worker.RunWorkerAsync(1);
-        }
+        
+        //public void LoadDatabaseImages(int projectId)
+        //{
+        //    //Background worker for populating data
+        //    _worker = new BackgroundWorker();
+        //    _worker.DoWork += (s, a) =>
+        //    {
+        //        PopulateImages((int)a.Argument);
+        //    };
+        //    _worker.RunWorkerCompleted += (s, a) =>
+        //    {
+        //        _generatingData = false;
+        //        StatusTbx.Text += "Loaded database.\r\n";
+        //        this.ShowAllDataPointClustered();
+        //    };
+        //    _worker.RunWorkerAsync(projectId);
+        //}
 
         #region Button Handlers
 
@@ -181,20 +191,20 @@ namespace PhotoVis.Views
                 return;
             }
 
-            if (_imageData == null)
+            if (App.MapVM.ImageLocations.Count == 0)
             {
                 StatusTbx.Text += "No database data found.\r\n";
                 return;
             }
 
-            foreach (var entity in _imageData)
+            foreach (var entity in App.MapVM.ImageLocations)
             {
                 PushpinLayer.Children.Add(_options.RenderEntity(entity));
             }
 
             StatusTbx.Text += "All data displayed without clustering.\r\n";
 
-            LocationRect bounds = new LocationRect(_imageData.Select(s => s.Location).ToList());
+            LocationRect bounds = new LocationRect(App.MapVM.ImageLocations.Select(s => s.Location).ToList());
             MyMap.SetView(bounds);
             MyMap.Focus();
         }
@@ -209,7 +219,7 @@ namespace PhotoVis.Views
                 return;
             }
 
-            if (_imageData == null)
+            if (App.MapVM.ImageLocations.Count == 0)
             {
                 StatusTbx.Text += "No database data found.\r\n";
                 return;
@@ -222,11 +232,11 @@ namespace PhotoVis.Views
             PushpinLayer.Children.Add(layer.GetMapLayer());
 
             //Add mock data to cluster layer
-            layer.AddEntities(_imageData);
+            layer.AddEntities(App.MapVM.ImageLocations.AsEntities());
 
             StatusTbx.Text += "Point based clustering is enabled.\r\n";
 
-            LocationRect bounds = new LocationRect(_imageData.Select(s => s.Location).ToList());
+            LocationRect bounds = new LocationRect(App.MapVM.ImageLocations.Select(s => s.Location).ToList());
             MyMap.SetView(bounds);
             MyMap.Focus();
         }
@@ -241,7 +251,7 @@ namespace PhotoVis.Views
                 return;
             }
 
-            if (_imageData == null)
+            if (App.MapVM.ImageLocations.Count == 0)
             {
                 StatusTbx.Text += "No database data found.\r\n";
                 return;
@@ -254,11 +264,11 @@ namespace PhotoVis.Views
             PushpinLayer.Children.Add(layer.GetMapLayer());
 
             //Add mock data to cluster layer
-            layer.AddEntities(_imageData);
+            layer.AddEntities(App.MapVM.ImageLocations.AsEntities());
 
             StatusTbx.Text += "Grid based clustering is enabled.\r\n";
 
-            LocationRect bounds = new LocationRect(_imageData.Select(s => s.Location).ToList());
+            LocationRect bounds = new LocationRect(App.MapVM.ImageLocations.Select(s => s.Location).ToList());
             MyMap.SetView(bounds);
             MyMap.Focus();
         }
@@ -288,32 +298,32 @@ namespace PhotoVis.Views
             mapPolygon.Opacity = 0.6;
         }
 
-        /// <summary>
-        /// Method that generates mock Entity data
-        /// </summary>
-        private void PopulateImages(int numEntities)
-        {
-            if (_imageData != null)
-            {
-                _imageData.Clear();
-            }
-            else
-            {
-                _imageData = new List<Entity>();
-            }
+        ///// <summary>
+        ///// Method that generates mock Entity data
+        ///// </summary>
+        //private void PopulateImages(int projectId)
+        //{
+        //    if (App.MapVM.ImageLocations != null)
+        //    {
+        //        _imageData.Clear();
+        //    }
+        //    else
+        //    {
+        //        _imageData = new List<Entity>();
+        //    }
             
-            Dictionary<int, ImageAtLocation> imageList = new Dictionary<int, ImageAtLocation>();
-            Dictionary<string, object> whereProject = new Dictionary<string, object>();
-            whereProject.Add(DImageAtLocation.ProjectId, 1); // TODO: Fix this to reflect correct assignment numbers
-            DataTable data = App.DB.GetValues(DTables.Images, null, new string[] { "*" });
+        //    Dictionary<int, ImageAtLocation> imageList = new Dictionary<int, ImageAtLocation>();
+        //    Dictionary<string, object> whereProject = new Dictionary<string, object>();
+        //    whereProject.Add(DImageAtLocation.ProjectId, projectId);
+        //    DataTable data = App.DB.GetValues(DTables.Images, whereProject, new string[] { "*" });
 
-            foreach (DataRow row in data.Rows)
-            {
-                ImageAtLocation img = new ImageAtLocation(row);
-                imageList.Add(img.ID, img);
-                _imageData.Add(img);
-            }
-        }
+        //    foreach (DataRow row in data.Rows)
+        //    {
+        //        ImageAtLocation img = new ImageAtLocation(row);
+        //        imageList.Add(img.ID, img);
+        //        _imageData.Add(img);
+        //    }
+        //}
 
         private void DisplayNextImage()
         {
@@ -334,7 +344,7 @@ namespace PhotoVis.Views
 
         private void SelectPushpins()
         {
-            if (_imageData == null)
+            if (App.MapVM.ImageLocations.Count == 0)
                 return;
 
             Location corner1 = MyMap.ViewportPointToLocation(this.polygonStartPoint);
@@ -375,7 +385,7 @@ namespace PhotoVis.Views
             this.selectedImages = new List<ImageAtLocation>();
             List<ImageAtLocation> allButFirst = new List<ImageAtLocation>();
             int n = 0;
-            foreach (ImageAtLocation img in _imageData)
+            foreach (ImageAtLocation img in App.MapVM.ImageLocations)
             {
                 if (rect.Contains(img.Location.Latitude, img.Location.Longitude))
                 {
@@ -414,14 +424,15 @@ namespace PhotoVis.Views
                         StatusTbx.Text += "Loaded selected images.\r\n";
                 };
                 imageLoader.RunWorkerAsync(allButFirst);
-
-
+                
                 List<Location> locations = this.selectedImages.Select(s => s.Location).ToList();
                 LocationRect bounds = new LocationRect(locations);
 
                 double height = Measure(bounds.North, bounds.East, bounds.South, bounds.West);
                 int zoom = GetZoomLevel(height, bounds.Center.Latitude, this.Height * 0.5, this.Width * 0.4);
                 if (zoom > 19)
+                    zoom = 19;
+                if (zoom < 0)
                     zoom = 19;
                 if (zoom < 4)
                     zoom = 4;
@@ -647,7 +658,7 @@ namespace PhotoVis.Views
 
                 // Creates a location for a single polygon point and adds it to
                 // the polygon's point location list.
-                this.polygonStartPoint = e.GetPosition(this);
+                this.polygonStartPoint = e.GetPosition(this.MyMap);
 
                 //Convert the mouse coordinates to a location on the map
                 Location polygonPointLocation = MyMap.ViewportPointToLocation(this.polygonStartPoint);
@@ -674,7 +685,7 @@ namespace PhotoVis.Views
             ShowEvent("MapWithEvents_MouseMove");
             if (this.isShiftDown && this.isMouseDown)
             {
-                this.polygonEndPoint = e.GetPosition(this);
+                this.polygonEndPoint = e.GetPosition(this.MyMap);
 
                 //Convert the mouse coordinates to a location on the map
                 Location upperRight = MyMap.ViewportPointToLocation(this.polygonStartPoint);

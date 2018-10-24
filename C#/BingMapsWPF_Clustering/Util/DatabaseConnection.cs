@@ -205,7 +205,14 @@ namespace PhotoVis.Util
                 }
                 else
                 {
-                    arguments.Add(this.sqlQuoteOrDefault(this.escapeString(pair.Value.ToString())));
+                    if(pair.Value is int || pair.Value is double)
+                    {
+                        arguments.Add(pair.Value.ToString());
+                    }
+                    else
+                    {
+                        arguments.Add(this.sqlQuoteOrDefault(this.escapeString(pair.Value.ToString())));
+                    }
                 }
             }
 
@@ -242,7 +249,14 @@ namespace PhotoVis.Util
                 }
                 else
                 {
-                    arguments.Add(this.sqlQuoteOrDefault(this.escapeString(pair.Value.ToString())));
+                    if (pair.Value is int || pair.Value is double)
+                    {
+                        arguments.Add(pair.Value.ToString());
+                    }
+                    else
+                    {
+                        arguments.Add(this.sqlQuoteOrDefault(this.escapeString(pair.Value.ToString())));
+                    }
                 }
             }
 

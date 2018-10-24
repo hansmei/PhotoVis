@@ -42,7 +42,6 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="EntityCollection.cs" />
     <Compile Include="GridBasedClusteredLayer.cs" />
     <Compile Include="Helpers.cs" />
     <Compile Include="PointBasedClusteredLayer.cs" />

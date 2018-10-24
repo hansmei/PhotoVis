@@ -1,18 +1,38 @@
 ﻿using System;
 using System.Drawing;
-using System.IO;
-using System.Windows.Controls;
+using System.Drawing.Imaging;
+using System.Windows;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using Microsoft.Maps.MapControl.WPF;
+using System.IO;
 using DImage = System.Drawing.Image;
+
+using PhotoVis.Data.DatabaseTables;
 
 namespace PhotoVis.Util
 {
     class ImageHelper
     {
-        public static string SnapshotUserControl(UserControl control)
+
+        public static string GetProjectThumbnailPath(int projectId)
         {
-            RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap((int)control.ActualHeight, (int)control.ActualHeight, 96, 96, PixelFormats.Pbgra32);
+            string imagePath = Path.Combine(App.ProjctsDataRoot, "Thumb_" + projectId + ".png");
+            return imagePath;
+        }
+
+        public static string SnapshotMap(int projectId, Map control)
+        {
+            int size;
+            if (control.ActualHeight > control.ActualWidth)
+                size = (int)control.ActualWidth;
+            else
+                size = (int)control.ActualHeight;
+
+            RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap(size, size, 96, 96, PixelFormats.Pbgra32);
             renderTargetBitmap.Render(control);
 
             PngBitmapEncoder pngImage = new PngBitmapEncoder();
@@ -24,23 +44,83 @@ namespace PhotoVis.Util
 
                 // Convert byte[] to Base64 String
                 string base64String = Convert.ToBase64String(imageBytes);
+                string resized = ResizeBase64ImageString(base64String, 200, 200);
+
+                DImage img = Base64ToImage(resized);
+                string path = GetProjectThumbnailPath(projectId);
+
+                // Make sure that file can be written and is not open
+                if (File.Exists(path))
+                {
+                    FileInfo fileInfo = new FileInfo(path);
+                    if (!IsFileLocked(fileInfo))
+                    {
+                        img.Save(path);
+                    }
+                }
+                else
+                {
+                    img.Save(path);
+                }
+                img.Dispose();
+
                 return base64String;
             }
         }
 
-        public static string ImageToBase64(string sourceFile)
+        protected static bool IsFileLocked(FileInfo file)
         {
-            using (DImage image = DImage.FromFile(sourceFile))
-            {
-                using (MemoryStream m = new MemoryStream())
-                {
-                    image.Save(m, image.RawFormat);
-                    byte[] imageBytes = m.ToArray();
+            FileStream stream = null;
 
-                    // Convert byte[] to Base64 String
-                    string base64String = Convert.ToBase64String(imageBytes);
-                    return base64String;
-                }
+            try
+            {
+                stream = file.Open(FileMode.Open, FileAccess.Read, FileShare.None);
+            }
+            catch (IOException)
+            {
+                //the file is unavailable because it is:
+                //still being written to
+                //or being processed by another thread
+                //or does not exist (has already been processed)
+                return true;
+            }
+            finally
+            {
+                if (stream != null)
+                    stream.Close();
+            }
+
+            //file is not locked
+            return false;
+        }
+
+        //public static string ImageToBase64(string sourceFile)
+        //{
+        //    using (DImage image = DImage.FromFile(sourceFile))
+        //    {
+        //        using (MemoryStream m = new MemoryStream())
+        //        {
+        //            image.Save(m, image.RawFormat);
+        //            byte[] imageBytes = m.ToArray();
+
+        //            // Convert byte[] to Base64 String
+        //            string base64String = Convert.ToBase64String(imageBytes);
+        //            return base64String;
+        //        }
+        //    }
+        //}
+
+        public static DImage Base64ToImage(string base64string)
+        {
+            // Convert Base64 String to byte[]
+            byte[] imageBytes = Convert.FromBase64String(base64string);
+
+            using (MemoryStream ms = new MemoryStream(imageBytes))
+            {
+                // Convert byte[] to Image
+                ms.Write(imageBytes, 0, imageBytes.Length);
+                DImage image = DImage.FromStream(ms, true);
+                return image;
             }
         }
 
@@ -62,12 +142,13 @@ namespace PhotoVis.Util
                 using (MemoryStream ms1 = new MemoryStream())
                 {
                     //First Convert Image to byte[]
-                    imag.Save(ms1, imag.RawFormat);
+                    imag.Save(ms1, image.RawFormat);
                     byte[] imageBytes1 = ms1.ToArray();
 
                     //Then Convert byte[] to Base64 String
                     string base64String = Convert.ToBase64String(imageBytes1);
-                    return "data:image/png;base64," + base64String;
+                    //return "data:image/png;base64," + base64String;
+                    return base64String;
                 }
             }
         }

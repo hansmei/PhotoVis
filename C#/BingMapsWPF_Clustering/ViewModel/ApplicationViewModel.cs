@@ -102,7 +102,8 @@ namespace PhotoVis.ViewModel
 
         public void OpenMapView(ProjectModel model)
         {
-            CurrentPageViewModel = new MapViewModel(model);
+            App.MapVM = new MapViewModel(model);
+            CurrentPageViewModel = App.MapVM;
         }
 
         #endregion

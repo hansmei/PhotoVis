@@ -13,6 +13,7 @@ namespace PhotoVis.Data.DatabaseTables
         public static string ProjectName = "ProjectName";
         public static string Latitude = "Latitude";
         public static string Longitude = "Longitude";
+        public static string Thumbnail = "Thumbnail";
         public static string TimeCreated = "TimeCreated";
         public static string TimeLastIndexed = "TimeLastIndexed";
     }

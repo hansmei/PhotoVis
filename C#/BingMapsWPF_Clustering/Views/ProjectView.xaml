@@ -8,8 +8,8 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="600">
 
-    <UserControl.Resources>
-        <!-- DataTemplate (View) for Product Model -->
+    <!--<UserControl.Resources>
+        --><!-- DataTemplate (View) for Product Model --><!--
         <DataTemplate DataType="{x:Type mod:ProjectModel}">
             <Border BorderBrush="Black" BorderThickness="1" Padding="20">
                 <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -32,10 +32,10 @@
                 </Grid>
             </Border>
         </DataTemplate>
-    </UserControl.Resources>
+    </UserControl.Resources>-->
 
-    <DockPanel Margin="20">
-        <DockPanel DockPanel.Dock="Top">
+    <DockPanel Margin="50">
+        <!--<DockPanel DockPanel.Dock="Top">
             <TextBlock Margin="10,2" DockPanel.Dock="Left" Text="Enter Product Id" VerticalAlignment="Center" />
 
             <TextBox Margin="10,2" Width="50" VerticalAlignment="Center" Text="{Binding Path=ProjectId, UpdateSourceTrigger=PropertyChanged}" />
@@ -47,21 +47,8 @@
                         Command="{Binding Path=GetProjectCommand}" IsDefault="True" Width="100" />
         </DockPanel>
 
-        <ContentControl Margin="10" Content="{Binding Path=CurrentProject}" />
+        <ContentControl Margin="10" Content="{Binding Path=CurrentProject}" />-->
 
-        <!--<ScrollViewer VerticalScrollBarVisibility="Auto">
-            <UniformGrid Columns="4">
-                <ItemsControl ItemsSource="{Binding AllProjects}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Button Width="200" Height="200" Content="{Binding ProjectName}" Command="{Binding Path=DataContext.OpenProjectCommand, 
-                            RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
-                            CommandParameter="{Binding }"/>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </UniformGrid>
-        </ScrollViewer>-->
 
         <ScrollViewer VerticalScrollBarVisibility="Auto">
             <ItemsControl Grid.Row="1" Grid.Column="1" ItemsSource="{Binding AllProjects}">
@@ -72,16 +59,25 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border BorderThickness="1" BorderBrush="Black" Margin="5">
-                            <Grid>
-                                <Image Height="200" Width="200" Stretch="UniformToFill" Source="C:\dev\temp\JBV Materialbibliotek\Bane NOR\asp05.png"/>
-                                <Button Panel.ZIndex="5" Height="200" Width="200" Background="Transparent" 
-                                        Content="{Binding ProjectName}" 
-                                        Command="{Binding Path=DataContext.OpenProjectCommand, 
-                                        RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
-                                        CommandParameter="{Binding }"/>
-                            </Grid>
-                        </Border>
+                        <Grid Margin="5">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="24"/>
+                                <RowDefinition Height="200"/>
+                                <RowDefinition Height="34"/>
+                                <RowDefinition Height="34"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Text="{Binding ProjectName}" HorizontalAlignment="Center" />
+                            <Border Grid.Row="1" BorderThickness="1" BorderBrush="Black" >
+                                <Image Height="200" Width="200" Stretch="UniformToFill" Source="{Binding Thumbnail}" />
+                            </Border>
+                            <Button Grid.Row="2" Margin="0,3"
+                                    Content="Open" 
+                                    Command="{Binding Path=DataContext.OpenProjectCommand, 
+                                    RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
+                                    CommandParameter="{Binding }"/>
+                            <Button Grid.Row="3" Margin="0,0,0,3"
+                                    Content="Edit" />
+                        </Grid>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>

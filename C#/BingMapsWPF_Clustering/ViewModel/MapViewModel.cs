@@ -5,8 +5,10 @@ using PhotoVis.Models;
 using PhotoVis.Util;
 using PhotoVis.Interfaces;
 using PhotoVis.Helpers;
-using PhotoVis.Views;
+using PhotoVis.Data;
 using ClusterEngine;
+
+using PhotoVis.Data.DatabaseTables;
 
 namespace PhotoVis.ViewModel
 {
@@ -17,10 +19,10 @@ namespace PhotoVis.ViewModel
         private int _projectId;
         private ProjectModel _currentProject;
         private string _statusText;
+        private ImageAtLocationCollection _imageLocations = new ImageAtLocationCollection();
+        private ImageAtLocationCollection _unassignedImageLocations = new ImageAtLocationCollection();
 
         #endregion
-
-        public IView View { get; set; }
 
         #region Properties/Commands
 
@@ -41,7 +43,23 @@ namespace PhotoVis.ViewModel
                 }
             }
         }
-        
+
+        public ImageAtLocationCollection ImageLocations
+        {
+            get
+            {
+                return _imageLocations;
+            }
+        }
+
+        public ImageAtLocationCollection UnassignedImageLocations
+        {
+            get
+            {
+                return _unassignedImageLocations;
+            }
+        }
+
         public string StatusText
         {
             get { return _statusText; }
@@ -74,31 +92,51 @@ namespace PhotoVis.ViewModel
         {
             this._projectId = model.ProjectId;
             this._currentProject = model;
+            this._imageLocations = new ImageAtLocationCollection();
 
-            EntityCollection clusterPins = new EntityCollection();
+            App.MapVM = this; // Need this as this is not set until after the constructor is complete
 
+            // Create first load of content
+            AssignmentIndexer.LoadImagesFromDatabase(this._projectId);
+            StatusText += "Images loaded from database.\r\n";
+            
             // Start a new background worker to index the folders in the project
             foreach (ImageFoldersModel folderModel in model.ProjectFolders)
             {
-                ProjectSingleFolder ps = new ProjectSingleFolder(model.ProjectId, folderModel);
+                ImageIndexerTransporter ps = new ImageIndexerTransporter(model.ProjectId, folderModel);
 
                 BackgroundWorker _worker = new BackgroundWorker();
                 _worker.DoWork += (s, a) =>
                 {
-                    ProjectSingleFolder p = (ProjectSingleFolder)a.Argument;
-                    AssignmentIndexer.IndexImages(p);
+                    ImageIndexerTransporter p = (ImageIndexerTransporter)a.Argument;
+                    List<ImageAtLocation> images = AssignmentIndexer.IndexImages(p);
+
+                    p.SetImages(images);
                     a.Result = p;
                 };
                 _worker.RunWorkerCompleted += (s, a) =>
                 {
-                    ProjectSingleFolder p = (ProjectSingleFolder)a.Result;
+                    ImageIndexerTransporter p = (ImageIndexerTransporter)a.Result;
                     StatusText += string.Format("Indexed folder {0} {1}.\r\n", 
                         p.FolderModel.FolderPath, 
                         (p.FolderModel.IncludeSubfolders ? "and all subfolders" : "not including subfolders"));
-                    //this.ShowAllDataPointClustered();
+                    
+                    App.MapVM.ImageLocations.SetProjectId(p.ProjectId);
 
-                    //MapView v = this.View as MapView;
-                    //v.LoadDatabaseImages();
+                    // Extract valid and invalid locations
+                    List<ImageAtLocation> unknownLocations = new List<ImageAtLocation>();
+                    List<ImageAtLocation> validLocation = AssignmentIndexer.ExtractValidLocations(p.Images, out unknownLocations);
+                    App.MapVM.ImageLocations.AddRange(validLocation);
+                    App.MapVM.UnassignedImageLocations.AddRange(unknownLocations);
+
+                    // Write to time last indexed
+                    Dictionary<string, object> where = new Dictionary<string, object>();
+                    where.Add(DAssignment.ProjectId, p.ProjectId);
+
+                    Dictionary<string, object> update = new Dictionary<string, object>();
+                    update.Add(DAssignment.TimeLastIndexed, DateTime.Now.ToString(App.RegionalCulture));
+                    int numAffected = App.DB.UpdateValue(DTables.Assignments, where, update);
+
                 };
                 _worker.RunWorkerAsync(ps);
             }

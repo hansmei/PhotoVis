@@ -138,6 +138,12 @@ namespace PhotoVis.Util
 
             table.Keys.Append("ForeignKeyImages", ADOX.KeyTypeEnum.adKeyForeign, DImageAtLocation.ProjectId, DTables.Assignments, DAssignment.ProjectId);
             
+            // Allow null
+            table.Columns[DImageAtLocation.Latitude].Attributes = ColumnAttributesEnum.adColNullable;
+            table.Columns[DImageAtLocation.Longitude].Attributes = ColumnAttributesEnum.adColNullable;
+            table.Columns[DImageAtLocation.Altitude].Attributes = ColumnAttributesEnum.adColNullable;
+            table.Columns[DImageAtLocation.Heading].Attributes = ColumnAttributesEnum.adColNullable;
+
             return table;
         }
     }

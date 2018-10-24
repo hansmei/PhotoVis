@@ -71,8 +71,8 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Data\DatabaseTables\DFolders.cs" />
-    <Compile Include="Helpers\ProjectSingleFolder.cs" />
-    <Compile Include="Interfaces\IView.cs" />
+    <Compile Include="Data\ImageAtLocationCollection.cs" />
+    <Compile Include="Helpers\ImageIndexerTransporter.cs" />
     <Compile Include="Models\ImageFoldersModel.cs" />
     <Compile Include="Util\DatabaseInitializer.cs" />
     <Compile Include="Util\ImageHelper.cs" />
