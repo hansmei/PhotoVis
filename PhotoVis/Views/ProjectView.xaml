@@ -1,0 +1,98 @@
+﻿<UserControl x:Class="PhotoVis.Views.ProjectView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:mod="clr-namespace:PhotoVis.Models"
+             xmlns:vm="clr-namespace:PhotoVis.ViewModel"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="600">
+
+    <!--<UserControl.Resources>
+        --><!-- DataTemplate (View) for Product Model --><!--
+        <DataTemplate DataType="{x:Type mod:ProjectModel}">
+            <Border BorderBrush="Black" BorderThickness="1" Padding="20">
+                <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Column="0" Grid.Row="0"  Text="ID" VerticalAlignment="Center" Margin="5" />
+                    <TextBox Grid.Row="0" Grid.Column="1"  Text="{Binding ProjectId}" Margin="5" Width="150" />
+
+                    <TextBlock Grid.Column="0" Grid.Row="1"  Text="Name" VerticalAlignment="Center" Margin="5" />
+                    <TextBox Grid.Row="1" Grid.Column="1"  Text="{Binding ProjectName}" Margin="5" Width="150" />
+
+                </Grid>
+            </Border>
+        </DataTemplate>
+    </UserControl.Resources>-->
+
+    <DockPanel Margin="50">
+        <!--<DockPanel DockPanel.Dock="Top">
+            <TextBlock Margin="10,2" DockPanel.Dock="Left" Text="Enter Product Id" VerticalAlignment="Center" />
+
+            <TextBox Margin="10,2" Width="50" VerticalAlignment="Center" Text="{Binding Path=ProjectId, UpdateSourceTrigger=PropertyChanged}" />
+
+            <Button Content="Save Product" DockPanel.Dock="Right" Margin="10,2" VerticalAlignment="Center"
+                        Command="{Binding Path=SaveProjectCommand}" Width="100" />
+
+            <Button Content="Get Product" DockPanel.Dock="Right" Margin="10,2" VerticalAlignment="Center"
+                        Command="{Binding Path=GetProjectCommand}" IsDefault="True" Width="100" />
+        </DockPanel>
+
+        <ContentControl Margin="10" Content="{Binding Path=CurrentProject}" />-->
+
+
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <ItemsControl Grid.Row="1" Grid.Column="1" ItemsSource="{Binding AllProjects}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Margin="5">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="24"/>
+                                <RowDefinition Height="200"/>
+                                <RowDefinition Height="34"/>
+                                <RowDefinition Height="34"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Text="{Binding ProjectDisplayName}" HorizontalAlignment="Center" />
+                            <Border Grid.Row="1" BorderThickness="1" BorderBrush="Black" >
+                                <Image Height="200" Width="200" Stretch="UniformToFill" Source="{Binding Thumbnail}" />
+                            </Border>
+                            <Button Grid.Row="2" Margin="0,3"
+                                    Content="Open" 
+                                    Command="{Binding Path=DataContext.OpenProjectCommand, 
+                                    RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
+                                    CommandParameter="{Binding }"/>
+                            <Grid Grid.Row="3">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <Button Grid.Column="0" Margin="0,0,0,3"
+                                    Content="Edit" Command="{Binding Path=DataContext.EditProjectCommand, 
+                                    RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
+                                    CommandParameter="{Binding }"/>
+                                <Button Grid.Column="1" Margin="3,0,0,3" Background="Red"
+                                    Content="Delete" Command="{Binding Path=DataContext.DeleteProjectCommand, 
+                                    RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
+                                    CommandParameter="{Binding }"/>
+                            </Grid>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </DockPanel>
+</UserControl>
