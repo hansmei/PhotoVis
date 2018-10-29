@@ -96,8 +96,15 @@ namespace PhotoVis.ViewModel
             if (!PageViewModels.Contains(viewModel))
                 PageViewModels.Add(viewModel);
 
-            CurrentPageViewModel = PageViewModels
-                .FirstOrDefault(vm => vm == viewModel);
+            if(viewModel is NewProjectViewModel)
+            {
+                CurrentPageViewModel = new NewProjectViewModel();
+            }
+            else
+            {
+                CurrentPageViewModel = PageViewModels
+                    .FirstOrDefault(vm => vm == viewModel);
+            }
         }
 
 

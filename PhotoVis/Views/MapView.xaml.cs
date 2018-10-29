@@ -11,6 +11,7 @@ using System.Linq;
 using System.Windows.Input;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
@@ -34,6 +35,7 @@ namespace PhotoVis.Views
         private BackgroundWorker _worker;
 
         private Point dragStartPoint;
+        private Point offsetInGoogleStreetViewMarker;
 
         private bool isShiftDown = false;
         private bool isMouseDown = false;
@@ -46,6 +48,9 @@ namespace PhotoVis.Views
         private List<ImageAtLocation> selectedImages = null;
         private int currentImageIndex = 0;
         private BitmapImage[] preloadedImages = null;
+
+        private Stopwatch imageUpdateTimer;
+        private Stopwatch unassignedImageUpdateTimer;
 
         // A collection of key/value pairs containing the event name 
         // and the text block to display the event to.
@@ -62,6 +67,7 @@ namespace PhotoVis.Views
             _options = new MyClusterOptions(20);
             
             App.MapVM.ImageLocations.CollectionChanged += ImageLocations_CollectionChanged;
+            App.MapVM.UnassignedImageLocations.CollectionChanged += UnassignedImageLocations_CollectionChanged; ;
             this.PreparePolygon();
             
             // Adds the layer that contains the polygon points
@@ -100,12 +106,17 @@ namespace PhotoVis.Views
                 new MouseEventHandler(MapWithEvents_MouseMove);
 
             MyMap.KeyDown += MyMap_KeyDown;
-
             MyMap.Loaded += MyMap_Loaded;
 
-            Application.Current.MainWindow.KeyDown += MainWindow_KeyDown; ;
-            Application.Current.MainWindow.KeyUp += MainWindow_KeyUp; ;
+            Application.Current.MainWindow.KeyDown += MainWindow_KeyDown;
+            Application.Current.MainWindow.KeyUp += MainWindow_KeyUp;
             
+            this.unassignedImageUpdateTimer = new Stopwatch();
+            this.unassignedImageUpdateTimer.Start();
+
+            this.imageUpdateTimer = new Stopwatch();
+            this.imageUpdateTimer.Start();
+
             this.ShowAllDataPointClustered();
         }
 
@@ -171,9 +182,17 @@ namespace PhotoVis.Views
         private void ImageLocations_CollectionChanged(object sender, EntityCollectionChangedEventArgs e)
         {
             this.Dispatcher.Invoke(new Action(() =>
-                this.ShowAllDataPointClustered()
-            ));
+                this.ReloadAssignedImages(e.ForceUpdate)
+            ), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
         }
+        
+        private void UnassignedImageLocations_CollectionChanged(object sender, EntityCollectionChangedEventArgs e)
+        {
+            this.Dispatcher.Invoke(new Action(() =>
+                this.ReloadUnassignedImages(e.ForceUpdate)
+            ), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+        }
+
 
         #region Button Handlers
 
@@ -257,38 +276,38 @@ namespace PhotoVis.Views
             
         }
 
-        private void ShowAllDataGridClustered()
-        {
-            PushpinLayer.Children.Clear();
+        //private void ShowAllDataGridClustered()
+        //{
+        //    PushpinLayer.Children.Clear();
 
-            if (_generatingData)
-            {
-                StatusTbx.Text += "Database is still loading.\r\n";
-                return;
-            }
+        //    if (_generatingData)
+        //    {
+        //        StatusTbx.Text += "Database is still loading.\r\n";
+        //        return;
+        //    }
 
-            if (App.MapVM.ImageLocations.Count == 0)
-            {
-                StatusTbx.Text += "No database data found.\r\n";
-                return;
-            }
+        //    if (App.MapVM.ImageLocations.Count == 0)
+        //    {
+        //        StatusTbx.Text += "No database data found.\r\n";
+        //        return;
+        //    }
 
-            //Create an instance of the Grid Based clustering layer
-            var layer = new GridBasedClusteredLayer(MyMap, _options);
+        //    //Create an instance of the Grid Based clustering layer
+        //    var layer = new GridBasedClusteredLayer(MyMap, _options);
 
-            //Get the map layer from the clustered layer and add to map
-            PushpinLayer.Children.Add(layer.GetMapLayer());
+        //    //Get the map layer from the clustered layer and add to map
+        //    PushpinLayer.Children.Add(layer.GetMapLayer());
 
-            //Add mock data to cluster layer
-            layer.AddEntities(App.MapVM.ImageLocations.AsEntities());
+        //    //Add mock data to cluster layer
+        //    layer.AddEntities(App.MapVM.ImageLocations.AsEntities());
 
-            StatusTbx.Text += "Grid based clustering is enabled.\r\n";
+        //    StatusTbx.Text += "Grid based clustering is enabled.\r\n";
 
-        }
+        //}
 
         private void ZoomMapToFitPins(Map map, IEnumerable<ImageAtLocation> images)
         {
-            List<Location> locations = images.Select(s => s.Location).ToList();
+            List<Location> locations = images.Where(s => s.Location != null).Select(s => s.Location).ToList();
             LocationRect bounds = new LocationRect(locations);
 
             double height = Measure(bounds.North, bounds.East, bounds.South, bounds.West);
@@ -302,14 +321,35 @@ namespace PhotoVis.Views
             map.SetView(bounds.Center, zoom);
         }
 
-        private void PointClusterData_Clicked(object sender, RoutedEventArgs e)
+        private void ReloadAssignedImages(bool forceUpdate)
         {
-            this.ShowAllDataPointClustered();
+            long time = this.imageUpdateTimer.ElapsedMilliseconds;
+            if (time > 3000 || forceUpdate)
+            {
+                this.ShowAllDataPointClustered();
+                this.imageUpdateTimer.Restart();
+            }
         }
 
-        private void GridClusterData_Clicked(object sender, RoutedEventArgs e)
+        private void ReloadUnassignedImages(bool forceUpdate)
         {
+            long time = this.unassignedImageUpdateTimer.ElapsedMilliseconds;
+            if(time > 3000 || forceUpdate)
+            {
+                this.UnassignedImagesControl.ItemsSource = App.MapVM.UnassignedImageLocations;
+                this.UnassignedImagesControl.Items.Refresh();
+                this.unassignedImageUpdateTimer.Restart();
+            }
         }
+
+        //private void PointClusterData_Clicked(object sender, RoutedEventArgs e)
+        //{
+        //    this.ShowAllDataPointClustered();
+        //}
+
+        //private void GridClusterData_Clicked(object sender, RoutedEventArgs e)
+        //{
+        //}
 
         #endregion
 
@@ -431,13 +471,22 @@ namespace PhotoVis.Views
 
             if (this.selectedImages.Count > 0)
             {
-                this.isOverlayActive = true;
-                this.Overlay.Visibility = Visibility.Visible;
-                this.Overlay.Focus();
-                int currentImageIndex = 0;
+                this.ShowSelectedImages(allButFirst);
+            }
 
-                this.preloadedImages = new BitmapImage[this.selectedImages.Count];
+        }
 
+        private void ShowSelectedImages(List<ImageAtLocation> allButFirst)
+        {
+            this.isOverlayActive = true;
+            this.Overlay.Visibility = Visibility.Visible;
+            this.Overlay.Focus();
+            int currentImageIndex = 0;
+
+            this.preloadedImages = new BitmapImage[this.selectedImages.Count];
+
+            if(allButFirst.Count > 0)
+            {
                 // Start a background worker to preload all images
                 BackgroundWorker imageLoader = new BackgroundWorker();
                 imageLoader.DoWork += (s, a) =>
@@ -453,26 +502,12 @@ namespace PhotoVis.Views
                         StatusTbx.Text += "Loaded selected images.\r\n";
                 };
                 imageLoader.RunWorkerAsync(allButFirst);
-                
-                //List<Location> locations = this.selectedImages.Select(s => s.Location).ToList();
-                //LocationRect bounds = new LocationRect(locations);
-
-                //double height = Measure(bounds.North, bounds.East, bounds.South, bounds.West);
-                //int zoom = GetZoomLevel(height, bounds.Center.Latitude, this.Height * 0.5, this.Width * 0.4);
-                //if (zoom > 19)
-                //    zoom = 19;
-                //if (zoom < 0)
-                //    zoom = 19;
-                //if (zoom < 4)
-                //    zoom = 4;
-                //this.InnerMap.SetView(bounds.Center, zoom);
-
-                this.ZoomMapToFitPins(this.InnerMap, this.selectedImages);
-
-                // Show the first image
-                this.ShowImage(currentImageIndex);
             }
+            
+            this.ZoomMapToFitPins(this.InnerMap, this.selectedImages);
 
+            // Show the first image
+            this.ShowImage(currentImageIndex);
         }
 
         private bool PreloadImageSelection(List<ImageAtLocation> images)
@@ -552,9 +587,10 @@ namespace PhotoVis.Views
             }
 
             this.imageCounter.Text = (imageIndex + 1) + "/" + this.selectedImages.Count;
-            this.FileName.Text = System.IO.Path.GetFileName(image.ImagePath);
-            string format = "yyyy MM DD HH:mm:ss";
-            this.ImageTaken.Text = image.TimeImageTaken.ToString();
+            this.ImageFileName.Text = System.IO.Path.GetFileName(image.ImagePath);
+            this.ImageSaveDate.Text = "";
+            this.ImageTaken.Text = image.TimeImageTaken.ToString(App.RegionalCulture);
+            this.Creator.Text = image.Creator.ToString();
 
             // Zoom the inner map
             this.InnerMap.Children.Clear();
@@ -579,6 +615,15 @@ namespace PhotoVis.Views
             }
             // Make sure the active pin are added last
             this.InnerMap.Children.Add(activePin);
+
+            if (image.HasLocation)
+            {
+                // Set the URL for the google street view
+                string googleStreetViewString =
+                        string.Format(@"https://www.google.com/maps/@?api=1&map_action=pano&viewpoint={0},{1}&heading=-45&pitch=0&fov=80",
+                        image.Location.Latitude, image.Location.Longitude);
+                this.MyBrowserControl.URL = googleStreetViewString;
+            }
         }
 
         #endregion
@@ -799,6 +844,16 @@ namespace PhotoVis.Views
         #endregion
 
         #region Dragging
+
+        private void Image_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            ImageAtLocation imageAtLocation = ((Image)sender).Tag as ImageAtLocation;
+
+            this.selectedImages = new List<ImageAtLocation>();
+            this.selectedImages.Add(imageAtLocation);
+            this.ShowSelectedImages(new List<ImageAtLocation>());
+        }
+
         private void Images_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             // Store the mouse position
@@ -847,12 +902,69 @@ namespace PhotoVis.Views
         }
 
 
+        private void GoogleStreetView_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.LeftButton != MouseButtonState.Pressed)
+                return;
+
+            //this.GoogleStreetViewMarker.CaptureMouse();
+            //offsetInGoogleStreetViewMarker = e.GetPosition(null);
+            
+            //var offsetInEllipse = e.GetPosition(this.GoogleStreetViewMarker);
+            //this.GoogleStreetViewTranslate.BeginAnimation(TranslateTransform.XProperty,
+            //    new DoubleAnimation(this.GoogleStreetViewMarker.Width / 2 - offsetInEllipse.X, 0,
+            //        new Duration(TimeSpan.FromSeconds(1))));
+            //this.GoogleStreetViewTranslate.BeginAnimation(TranslateTransform.YProperty,
+            //    new DoubleAnimation(this.GoogleStreetViewMarker.Height / 2 - offsetInEllipse.Y, 0,
+            //        new Duration(TimeSpan.FromSeconds(1))));
+
+            //MoveGoogleMarker(e);
+        }
+
+        //private void MoveGoogleMarker(MouseEventArgs e)
+        //{
+        //    var pos = e.GetPosition(null);
+        //    Canvas.SetLeft(this.GoogleStreetViewMarker, pos.X - this.GoogleStreetViewMarker.Width / 2);
+        //    Canvas.SetTop(this.GoogleStreetViewMarker, pos.Y - this.GoogleStreetViewMarker.Height / 2);
+        //}
+
+        private void GoogleStreetView_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            // Store the mouse position
+            dragStartPoint = e.GetPosition(null);
+        }
+
+        private void GoogleStreetView_MouseMove(object sender, MouseEventArgs e)
+        {
+            // Get the current mouse position
+            Point mousePos = e.GetPosition(null);
+            Vector diff = dragStartPoint - mousePos;
+
+            if (e.LeftButton == MouseButtonState.Pressed &&
+                (Math.Abs(diff.X) > SystemParameters.MinimumHorizontalDragDistance ||
+                Math.Abs(diff.Y) > SystemParameters.MinimumVerticalDragDistance))
+            {
+                // Get the dragged ListViewItem
+                Image control = sender as Image;
+
+                // Initialize the drag & drop operation
+                DataObject dragData = new DataObject("googleStreetView", true);
+                DragDrop.DoDragDrop(control, dragData, DragDropEffects.Move);
+            }
+
+            //if (e.LeftButton != MouseButtonState.Pressed || !this.GoogleStreetViewMarker.IsMouseCaptured)
+            //    return;
+
+            //MoveGoogleMarker(e);
+
+        }
+
         private void MyMap_DragEnter(object sender, DragEventArgs e)
         {
             if (!e.Data.GetDataPresent("draggedImageWitoutLocation") ||
                 sender == e.Source)
             {
-                e.Effects = DragDropEffects.None;
+                //e.Effects = DragDropEffects.None;
             }
         }
 
@@ -860,19 +972,39 @@ namespace PhotoVis.Views
         {
             if (e.Data.GetDataPresent("draggedImageWitoutLocation"))
             {
+                int countBefore = App.MapVM.UnassignedImageLocations.Count;
                 Location dropAt = this.MyMap.ViewportPointToLocation(e.GetPosition(this.MyMap));
                 ImageAtLocation image = e.Data.GetData("draggedImageWitoutLocation") as ImageAtLocation;
-                image.Location = dropAt;
-
-                int countBefore = App.MapVM.UnassignedImageLocations.Count;
-                App.MapVM.ImageLocations.Add(image);
                 App.MapVM.UnassignedImageLocations.Remove(image);
-                int countAfter = App.MapVM.UnassignedImageLocations.Count;
+                App.MapVM.UnassignedImageLocations.TriggerCollectionChanged(true); // Force updating the content
 
-                // TODO: Write a file to disk to help locate the image
+                // Update the location add to images
+                image.Location = dropAt;
+                image.LocationSource = ImageAtLocation.LocationSourceType.Manual;
+
+                // Write data back to the database
+                image.SaveToDatabase();
+                
+                // Write a file to disk to help locate the image
+
+                
+                // Add to collection
+                App.MapVM.ImageLocations.Add(image);
+                App.MapVM.ImageLocations.TriggerCollectionChanged(true); // Force updating the content
+                int countAfter = App.MapVM.UnassignedImageLocations.Count;
+            }
+            else if (e.Data.GetDataPresent("googleStreetView"))
+            {
+                Location dropAt = this.MyMap.ViewportPointToLocation(e.GetPosition(this.MyMap));
+
+                string googleStreetViewString = 
+                    string.Format(@"https://www.google.com/maps/@?api=1&map_action=pano&viewpoint={0},{1}", //&heading=-45&pitch=0&fov=80
+                    dropAt.Latitude, dropAt.Longitude);
+                System.Diagnostics.Process.Start(googleStreetViewString);
 
             }
         }
         #endregion
+
     }
 }

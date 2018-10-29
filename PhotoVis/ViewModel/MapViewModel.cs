@@ -22,6 +22,8 @@ namespace PhotoVis.ViewModel
         private ProjectModel _currentProject;
         private string _statusText;
         private string _timeLastIndexed;
+        private double _lowerAgeValue = 0;
+        private double _upperAgeValue = 100;
         private bool _unassignedVisible = false;
         private ImageAtLocationCollection _imageLocations = new ImageAtLocationCollection();
         private ImageAtLocationCollection _unassignedImageLocations = new ImageAtLocationCollection();
@@ -109,6 +111,38 @@ namespace PhotoVis.ViewModel
             }
         }
 
+        public double LowerAgeValue
+        {
+            get
+            {
+                return _lowerAgeValue;
+            }
+            set
+            {
+                if(value != _lowerAgeValue)
+                {
+                    _lowerAgeValue = value;
+                    OnPropertyChanged("LowerAgeValue");
+                }
+            }
+        }
+
+        public double UpperAgeValue
+        {
+            get
+            {
+                return _upperAgeValue;
+            }
+            set
+            {
+                if (value != _upperAgeValue)
+                {
+                    _upperAgeValue = value;
+                    OnPropertyChanged("UpperAgeValue");
+                }
+            }
+        }
+
         public string TimeLastIndexed
         {
             get
@@ -153,8 +187,8 @@ namespace PhotoVis.ViewModel
             {
                 //this.StartIndexBackgroundworker(model);
                 //this.StartIndexingAsync(model);
-                Task.Delay(4000).ContinueWith(
-                    t => this.StartIndexingAsync(model)
+                Task.Delay(800).ContinueWith(
+                    t => this.StartIndexBackgroundworker(model)
                     );
             }
         }
@@ -171,7 +205,19 @@ namespace PhotoVis.ViewModel
                 _worker.DoWork += (s, a) =>
                 {
                     ImageIndexerTransporter p = (ImageIndexerTransporter)a.Argument;
-                    List<ImageAtLocation> images = AssignmentIndexer.IndexImages(p, method);
+                    
+                    List<string> allDirectories = FileHelper.GetDirectories(ps.FolderPath, searchOption: method);
+                    allDirectories.Add(ps.FolderPath); // Make sure we add the current folder to the query
+
+                    // Start async tasks for each subdirectory to index its contents
+                    List<ImageAtLocation> images = new List<ImageAtLocation>();
+                    foreach (string folder in allDirectories)
+                    {
+                        ImageIndexerTransporter transport = new ImageIndexerTransporter(p.ProjectId, folder);
+                        List<ImageAtLocation> tmp = AssignmentIndexer.IndexImages(transport, SearchOption.TopDirectoryOnly);
+                        images.AddRange(tmp);
+                        StatusText += string.Format("Indexed folder {0}.\r\n", folder);
+                    }
 
                     p.SetImages(images);
                     a.Result = p;
@@ -179,15 +225,6 @@ namespace PhotoVis.ViewModel
                 _worker.RunWorkerCompleted += (s, a) =>
                 {
                     ImageIndexerTransporter p = (ImageIndexerTransporter)a.Result;
-                    StatusText += string.Format("Indexed folder {0}.\r\n", p.FolderPath);
-
-                    App.MapVM.ImageLocations.SetProjectId(p.ProjectId);
-
-                    // Extract valid and invalid locations
-                    List<ImageAtLocation> unknownLocations = new List<ImageAtLocation>();
-                    List<ImageAtLocation> validLocation = AssignmentIndexer.ExtractValidLocations(p.Images, out unknownLocations);
-                    App.MapVM.ImageLocations.AddRange(validLocation);
-                    App.MapVM.UnassignedImageLocations.AddRange(unknownLocations);
 
                     // Write to time last indexed
                     Dictionary<string, object> where = new Dictionary<string, object>();
@@ -197,6 +234,15 @@ namespace PhotoVis.ViewModel
                     update.Add(DAssignment.TimeLastIndexed, DateTime.Now.ToString(App.RegionalCulture));
                     int numAffected = App.DB.UpdateValue(DTables.Assignments, where, update);
 
+                    StatusText += string.Format("Completed all subfolders of {0}.\r\n", p.FolderPath);
+
+                    App.MapVM.ImageLocations.SetProjectId(p.ProjectId);
+
+                    // Extract valid and invalid locations
+                    List<ImageAtLocation> unknownLocations = new List<ImageAtLocation>();
+                    List<ImageAtLocation> validLocation = AssignmentIndexer.ExtractValidLocations(p.Images, out unknownLocations);
+                    App.MapVM.ImageLocations.AddRange(validLocation);
+                    //App.MapVM.UnassignedImageLocations.AddRange(unknownLocations);
                 };
                 _worker.RunWorkerAsync(ps);
             }
@@ -213,10 +259,17 @@ namespace PhotoVis.ViewModel
 
                 SearchOption method = folderModel.IncludeSubfolders ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
                 List<string> allDirectories = FileHelper.GetDirectories(folderModel.FolderPath, searchOption: method);
+                allDirectories.Add(folderModel.FolderPath); // Make sure we add the current folder to the query
 
                 // Start async tasks for each subdirectory to index its contents
                 foreach (string folder in allDirectories)
                 {
+                    //ImageIndexerTransporter ps = new ImageIndexerTransporter(model.ProjectId, folder);
+
+                    //ImageIndexerTransporter modified = await this.AsyncIndexFolder(ps).ConfigureAwait(false);
+                    //int numAdded = await this.AsyncModifyCollections(modified).ConfigureAwait(false);
+
+
                     ImageIndexerTransporter ps = new ImageIndexerTransporter(model.ProjectId, folder);
                     tasks.Add(Task.Run(() =>
                     {
@@ -244,8 +297,9 @@ namespace PhotoVis.ViewModel
                         Dictionary<string, object> update = new Dictionary<string, object>();
                         update.Add(DAssignment.TimeLastIndexed, DateTime.Now.ToString(App.RegionalCulture));
                         int numAffected = App.DB.UpdateValue(DTables.Assignments, where, update);
-                    }
+                    }//, System.Threading.CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously | TaskContinuationOptions.DenyChildAttach, TaskScheduler.Default
                     ));
+
 
                     //BackgroundWorker _worker = new BackgroundWorker();
                     //_worker.DoWork += (s, a) =>
@@ -286,9 +340,51 @@ namespace PhotoVis.ViewModel
             {
                 // write your code here
                 StatusText += string.Format("Completed indexing all folders.\r\n");
-
-            });
+                App.MapVM.ImageLocations.TriggerCollectionChanged(true);
+                App.MapVM.UnassignedImageLocations.TriggerCollectionChanged(true);
+            }).ConfigureAwait(false);
         }
+
+
+
+        //private Task<ImageIndexerTransporter> AsyncIndexFolder(ImageIndexerTransporter transport)
+        //{
+        //    Task<ImageIndexerTransporter> task = Task.Run(() =>
+        //    {
+        //        List<ImageAtLocation> images = AssignmentIndexer.IndexImages(transport, SearchOption.TopDirectoryOnly);
+        //        transport.SetImages(images);
+        //        return transport;
+        //    });
+        //    return task;
+        //}
+
+        //private Task<int> AsyncModifyCollections(ImageIndexerTransporter transport)
+        //{
+        //    Task<int> task = Task.Run(() =>
+        //    {
+        //        ImageIndexerTransporter p = transport;
+        //        StatusText += string.Format("Indexed folder {0}.\r\n", p.FolderPath);
+
+        //        App.MapVM.ImageLocations.SetProjectId(p.ProjectId);
+
+        //        // Extract valid and invalid locations
+        //        List<ImageAtLocation> unknownLocations = new List<ImageAtLocation>();
+        //        List<ImageAtLocation> validLocation = AssignmentIndexer.ExtractValidLocations(p.Images, out unknownLocations);
+        //        App.MapVM.ImageLocations.AddRange(validLocation);
+        //        App.MapVM.UnassignedImageLocations.AddRange(unknownLocations);
+
+        //        // Write to time last indexed
+        //        Dictionary<string, object> where = new Dictionary<string, object>();
+        //        where.Add(DAssignment.ProjectId, p.ProjectId);
+
+        //        Dictionary<string, object> update = new Dictionary<string, object>();
+        //        update.Add(DAssignment.TimeLastIndexed, DateTime.Now.ToString(App.RegionalCulture));
+        //        int numAffected = App.DB.UpdateValue(DTables.Assignments, where, update);
+        //        return numAffected;
+        //    });
+        //    return task;
+        //}
+
 
         #region Events
 

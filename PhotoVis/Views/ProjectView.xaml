@@ -66,7 +66,7 @@
                                 <RowDefinition Height="34"/>
                                 <RowDefinition Height="34"/>
                             </Grid.RowDefinitions>
-                            <TextBlock Grid.Row="0" Text="{Binding ProjectDisplayName}" HorizontalAlignment="Center" />
+                            <TextBlock Style="{StaticResource TextLight}"  Grid.Row="0" Text="{Binding ProjectDisplayName}" HorizontalAlignment="Center" />
                             <Border Grid.Row="1" BorderThickness="1" BorderBrush="Black" >
                                 <Image Height="200" Width="200" Stretch="UniformToFill" Source="{Binding Thumbnail}" />
                             </Border>

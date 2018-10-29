@@ -11,9 +11,12 @@ namespace PhotoVis.ViewModel
     public class NewProjectViewModel : ObservableObject, IPageViewModel
     {
         #region Fields
-        
+
+        private bool _projectIdAlreadyExists = false;
+        private bool _canEditProjectId = true;
         private int _projectId;
         private string _projectName;
+        private HashSet<int> _usedProjectIds;
         private ProjectModel _currentProject;
         private ICommand _addProjectFolderCommand;
         private ICommand _removeProjectFolderCommand;
@@ -30,6 +33,19 @@ namespace PhotoVis.ViewModel
             get { return "New project"; }
         }
 
+        public bool CanEditProjectId
+        {
+            get
+            {
+                return _canEditProjectId;
+            }
+            set
+            {
+                _canEditProjectId = value;
+                OnPropertyChanged("CanEditProjectId");
+            }
+        }
+
         public int ProjectId
         {
             get
@@ -38,6 +54,14 @@ namespace PhotoVis.ViewModel
             }
             set
             {
+                if (this._usedProjectIds != null && this._usedProjectIds.Contains(value))
+                {
+                    this.ProjectIdAlreadyExists = true;
+                }
+                else
+                {
+                    this.ProjectIdAlreadyExists = false;
+                }
                 _projectId = value;
                 OnPropertyChanged("ProjectId");
             }
@@ -60,23 +84,11 @@ namespace PhotoVis.ViewModel
                 OnPropertyChanged("ProjectName");
             }
         }
-
-        //public string[] FilesTest
-        //{
-        //    get
-        //    {
-        //        return Directory.GetFiles(@"C:\dev\temp\");
-        //    }
-        //}
-
+        
         public ObservableCollection<ImageFoldersModel> IncludedPaths
         {
             get
             {
-                //ObservableCollection<ImageFoldersModel> tmp = new ObservableCollection<ImageFoldersModel>();
-                //tmp.Add(new ImageFoldersModel(@"C:\dev\temp\", true));
-                //tmp.Add(new ImageFoldersModel(@"C:\dev\", true));
-                //return tmp;
                 if (_currentProject != null)
                     return _currentProject.ProjectFolders;
                 return new ObservableCollection<ImageFoldersModel>();
@@ -89,6 +101,22 @@ namespace PhotoVis.ViewModel
                 }
                 _currentProject.ProjectFolders = value;
                 OnPropertyChanged("IncludedPaths");
+            }
+        }
+
+        public bool ProjectIdAlreadyExists
+        {
+            get
+            {
+                return _projectIdAlreadyExists;
+            }
+            set
+            {
+                if(value != _projectIdAlreadyExists)
+                {
+                    this._projectIdAlreadyExists = value;
+                    OnPropertyChanged("ProjectIdAlreadyExists");
+                }
             }
         }
 
@@ -130,7 +158,7 @@ namespace PhotoVis.ViewModel
                 {
                     _saveProjectCommand = new RelayCommand(
                         param => SaveProject(),
-                        param => (_currentProject != null && IncludedPaths.Count > 0)
+                        param => (_currentProject != null && IncludedPaths.Count > 0 && !this._projectIdAlreadyExists)
                     );
                 }
                 return _saveProjectCommand;
@@ -171,7 +199,7 @@ namespace PhotoVis.ViewModel
 
         public NewProjectViewModel()
         {
-
+            this.SetUsedProjectIds();
         }
 
         public NewProjectViewModel(ProjectModel model)
@@ -181,17 +209,31 @@ namespace PhotoVis.ViewModel
             this.ProjectName = model.ProjectName;
 
             this.IncludedPaths = model.ProjectFolders;
+            this.CanEditProjectId = false;
+
+            this.SetUsedProjectIds();
         }
 
         #region Methods
 
+        private void SetUsedProjectIds()
+        {
+            List<ProjectModel> allProjects = ProjectModel.LoadAllProjects();
+            _usedProjectIds = new HashSet<int>();
+            foreach (ProjectModel model in allProjects)
+            {
+                _usedProjectIds.Add(model.ProjectId);
+            }
+        }
+
         private void SaveProject()
         {
             // Save the model in databse
-            int numAffected = _currentProject.Save(true);
+            int numAffected = _currentProject.Save(this.CanEditProjectId); // Bool variable equals firstrun or edit mode
             if(numAffected > 0)
             {
                 _currentProject.HasDatabase = true;
+                this.CanEditProjectId = false;
             }
             OnPropertyChanged("AllProjects");
         }
@@ -244,7 +286,12 @@ namespace PhotoVis.ViewModel
             for(int i  = tmp.Count - 1; i >= 0; i--)
             {
                 if (tmp[i].FolderPath == path)
+                {
                     tmp.RemoveAt(i);
+
+                    // TODO: Delete images from the database
+
+                }
             }
             IncludedPaths = tmp;
         }

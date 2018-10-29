@@ -7,6 +7,7 @@ using System.Windows;
 
 using PhotoVis.Util;
 using PhotoVis.ViewModel;
+using SpikeAccountManager;
 
 namespace PhotoVis
 {
@@ -31,7 +32,7 @@ namespace PhotoVis
             // Set invariant culture on main thread
             RegionalCulture = Thread.CurrentThread.CurrentCulture;
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
-
+                        
             // Make sure some special folders exist
             if (!Directory.Exists(PhotoVisDataRoot))
                 Directory.CreateDirectory(PhotoVisDataRoot);
@@ -59,10 +60,17 @@ namespace PhotoVis
         {
             base.OnStartup(e);
 
-            StartWindow app = new StartWindow();
-            VM = new ApplicationViewModel();
-            app.DataContext = VM;
-            app.Show();
+            //// Fetch the user account
+            //SpikeAccountManager.AccountWindow window = new SpikeAccountManager.AccountWindow();
+            //bool? result = window.ShowDialog();
+
+            //if(result.HasValue && result.Value)
+            //{
+                StartWindow app = new StartWindow();
+                VM = new ApplicationViewModel();
+                app.DataContext = VM;
+                app.Show();
+            //}
         }
     }
 }

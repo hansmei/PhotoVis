@@ -13,6 +13,8 @@
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -32,6 +34,9 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>iconblue_256x256.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="MetadataExtractor, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -70,12 +75,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\RangeSlider.xaml.cs">
+      <DependentUpon>RangeSlider.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\BrowserControl.cs" />
     <Compile Include="Data\DatabaseTables\DFolders.cs" />
     <Compile Include="Data\ImageAtLocationCollection.cs" />
+    <Compile Include="Helpers\RangeToAgeConverter.cs" />
     <Compile Include="Helpers\ImageIndexerTransporter.cs" />
-    <Compile Include="ImageDroppable.xaml.cs">
-      <DependentUpon>ImageDroppable.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Models\ImageFoldersModel.cs" />
     <Compile Include="Util\DatabaseInitializer.cs" />
     <Compile Include="Util\ExifThumbReader.cs" />
@@ -96,9 +103,6 @@
     <Compile Include="StartWindow.xaml.cs">
       <DependentUpon>StartWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="AlternativeStart.deleteme.xaml.cs">
-      <DependentUpon>AlternativeStart.deleteme.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Util\AssignmentIndexer.cs" />
     <Compile Include="Util\DatabaseConnection.cs" />
     <Compile Include="ViewModel\MapViewModel.cs" />
@@ -113,28 +117,20 @@
     <Compile Include="Views\ProjectView.xaml.cs">
       <DependentUpon>ProjectView.xaml</DependentUpon>
     </Compile>
-    <Page Include="ImageDroppable.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="MainWindow.deleteme.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Helpers\CustomEntity.cs" />
-    <Compile Include="MainWindow.deleteme.xaml.cs">
-      <DependentUpon>MainWindow.deleteme.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
+    <Page Include="Controls\RangeSlider.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="StartWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="AlternativeStart.deleteme.xaml">
+    <Page Include="Style\DarkStyle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -185,6 +181,10 @@
       <Project>{f262edf2-70a5-42f8-b18d-70830d0bf82d}</Project>
       <Name>ClusterEngine</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SpeckleAccountManager\SpikeAccountManager.csproj">
+      <Project>{d65594c8-ea2e-46ca-a756-b1634edc3ae3}</Project>
+      <Name>SpikeAccountManager</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\green_pin.png">
@@ -213,6 +213,14 @@
       <Isolated>False</Isolated>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Street_View_logo.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="iconblue_256x256.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

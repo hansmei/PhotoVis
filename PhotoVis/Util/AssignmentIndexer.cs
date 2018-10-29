@@ -46,12 +46,16 @@ namespace PhotoVis.Util
         public static HashSet<string> GetUniquePathNames()
         {
             HashSet<string> uniquePathNames = new HashSet<string>();
-            foreach(ImageAtLocation img in App.MapVM.ImageLocations)
+            int numImages = App.MapVM.ImageLocations.Count;
+            for(int i = 0; i < numImages; i++)
             {
+                ImageAtLocation img = App.MapVM.ImageLocations[i];
                 uniquePathNames.Add(img.ImagePath);
             }
-            foreach (ImageAtLocation img in App.MapVM.UnassignedImageLocations)
+            int numUnassignedImages = App.MapVM.UnassignedImageLocations.Count;
+            for (int i = 0; i < numUnassignedImages; i++)
             {
+                ImageAtLocation img = App.MapVM.UnassignedImageLocations[i];
                 uniquePathNames.Add(img.ImagePath);
             }
             return uniquePathNames;
@@ -75,7 +79,7 @@ namespace PhotoVis.Util
             }
             return valid;
         }
-        
+
         //public static async Task<ImageIndexerTransporter> IndexImagesAsync(ImageIndexerTransporter singleFolderToIndex)
         //{
         //    //create a task completion source
@@ -98,12 +102,34 @@ namespace PhotoVis.Util
         //    //);
         //}
 
+        //public static List<ImageAtLocation> IndexImagesAsync(ImageIndexerTransporter folderToIndex, IO.SearchOption searchMode)
+        //{
+        //    // First make sure a folder for thumbnails images exist for this project
+        //    string projectThumbFolder = ImageHelper.GetProjectThumbnailsFolder(folderToIndex.ProjectId);
+        //    if (!IO.Directory.Exists(projectThumbFolder))
+        //        IO.Directory.CreateDirectory(projectThumbFolder);
+
+        //    HashSet<string> unique = GetUniquePathNames();
+
+        //    List<ImageAtLocation> images = IndexImagesInLocation(folderToIndex, searchMode);
+        //    List<ImageAtLocation> newImages = new List<ImageAtLocation>();
+        //    foreach (ImageAtLocation img in images)
+        //    {
+        //        if (!unique.Contains(img.ImagePath))
+        //        {
+        //            img.SaveToDatabase();
+        //            newImages.Add(img);
+        //        }
+        //    }
+        //    return newImages;
+        //}
+
         public static List<ImageAtLocation> IndexImages(ImageIndexerTransporter folderToIndex, IO.SearchOption searchMode)
         {
-            // First make sure a folder for thumbnails images exist for this project
-            string projectThumbFolder = ImageHelper.GetProjectThumbnailsFolder(folderToIndex.ProjectId);
-            if (!IO.Directory.Exists(projectThumbFolder))
-                IO.Directory.CreateDirectory(projectThumbFolder);
+            //// First make sure a folder for thumbnails images exist for this project
+            //string projectThumbFolder = ImageHelper.GetProjectThumbnailsFolder(folderToIndex.ProjectId);
+            //if (!IO.Directory.Exists(projectThumbFolder))
+            //    IO.Directory.CreateDirectory(projectThumbFolder);
 
             HashSet<string> unique = GetUniquePathNames();
 
@@ -187,6 +213,8 @@ namespace PhotoVis.Util
                         new Location(location.Latitude, location.Longitude),
                         path,
                         null,
+                        ImageAtLocation.LocationSourceType.GPS,
+                        GetFileCreator(path),
                         imageTakenTime,
                         degrees
                         );
@@ -221,9 +249,24 @@ namespace PhotoVis.Util
                         null,
                         path,
                         resized,
+                        ImageAtLocation.LocationSourceType.Unknown,
+                        GetFileCreator(path),
                         imageTakenTime,
                         0
                         );
+            }
+        }
+
+        private static string GetFileCreator(string path)
+        {
+            try
+            {
+                string user = IO.File.GetAccessControl(path).GetOwner(typeof(System.Security.Principal.NTAccount)).ToString();
+                return user;
+            }
+            catch
+            {
+                return "";
             }
         }
 
@@ -243,22 +286,22 @@ namespace PhotoVis.Util
             }
         }
 
-        protected static void SaveThumbnailImage(string path, int projectId)
-        {
-            try
-            {
-                Image thumbnailImage = ExifThumbReader.ReadThumb(path);
-                string base64thumb = ImageHelper.ImageToBase64(thumbnailImage);
+        //protected static void SaveThumbnailImage(string path, int projectId)
+        //{
+        //    try
+        //    {
+        //        Image thumbnailImage = ExifThumbReader.ReadThumb(path);
+        //        string base64thumb = ImageHelper.ImageToBase64(thumbnailImage);
 
-                string projectThumbFolder = ImageHelper.GetProjectThumbnailsFolder(projectId);
-                string thumbPath = IO.Path.Combine(projectThumbFolder, IO.Path.GetFileNameWithoutExtension(path) + ".txt");
-                ImageHelper.WriteBase64ToFile(thumbPath, base64thumb);
-            }
-            catch
-            {
+        //        string projectThumbFolder = ImageHelper.GetProjectThumbnailsFolder(projectId);
+        //        string thumbPath = IO.Path.Combine(projectThumbFolder, IO.Path.GetFileNameWithoutExtension(path) + ".txt");
+        //        ImageHelper.WriteBase64ToFile(thumbPath, base64thumb);
+        //    }
+        //    catch
+        //    {
 
-            }
-        }
+        //    }
+        //}
     }
 
 }

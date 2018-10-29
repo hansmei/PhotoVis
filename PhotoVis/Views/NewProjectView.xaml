@@ -6,9 +6,12 @@
              xmlns:local="clr-namespace:PhotoVis.Views"
              mc:Ignorable="d" 
              d:DesignHeight="500" d:DesignWidth="500">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisConverter" />
+    </UserControl.Resources>
     <Grid Width="700" HorizontalAlignment="Center">
         <Grid.RowDefinitions>
-            <RowDefinition Height="180"/>
+            <RowDefinition Height="210"/>
             <RowDefinition/>
             <RowDefinition/>
         </Grid.RowDefinitions>
@@ -19,13 +22,15 @@
                 <RowDefinition Height="34"/>
                 <RowDefinition Height="34"/>
                 <RowDefinition Height="34"/>
+                <RowDefinition Height="34"/>
             </Grid.RowDefinitions>
-            
+
             <Label Content="Enter a unique ID (use the project number)" Margin="5"/>
-            <TextBox Grid.Row="1" Name="ID" Text="{Binding ProjectId, UpdateSourceTrigger=PropertyChanged}" Margin="5"/>
-            <Label Grid.Row="2" Content="Enter a name for the new project" Margin="5"/>
-            <TextBox Grid.Row="3" Name="Name" Text="{Binding ProjectName, UpdateSourceTrigger=PropertyChanged}" Margin="5"/>
-            <Button Grid.Row="4" Content="Add folders" Command="{Binding Path=AddProjectFolderCommand}" Margin="5"/>
+            <TextBox Grid.Row="1" Name="ID" Text="{Binding ProjectId, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanEditProjectId}" Margin="5"/>
+            <Label Grid.Row="2" Foreground="Red" Content="Project ID already used!" Visibility="{Binding Path=ProjectIdAlreadyExists, Converter={StaticResource BoolToVisConverter} }" Margin="5"/>
+            <Label Grid.Row="3" Content="Enter a name for the new project" Margin="5"/>
+            <TextBox Grid.Row="4" Name="Name" Text="{Binding ProjectName, UpdateSourceTrigger=PropertyChanged}" Margin="5"/>
+            <Button Grid.Row="5" Content="Add folders" Command="{Binding Path=AddProjectFolderCommand}" Margin="5"/>
         </Grid>
         <Grid Grid.Row="1">
             <ListView ItemsSource="{Binding IncludedPaths}">

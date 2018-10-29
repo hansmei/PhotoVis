@@ -10,11 +10,11 @@ none
 false
 DEBUG;TRACE
 C:\dev\git\PhotoVis\PhotoVis\App.xaml
-7712882685
+61561032754
 
-42-174037858
-22-840025052
-ImageDroppable.xaml;MainWindow.deleteme.xaml;StartWindow.xaml;AlternativeStart.deleteme.xaml;Views\MapView.xaml;Views\NewProjectView.xaml;Views\ProjectView.xaml;
+42-153219390
+23-319860327
+Controls\RangeSlider.xaml;StartWindow.xaml;Style\DarkStyle.xaml;Views\MapView.xaml;Views\NewProjectView.xaml;Views\ProjectView.xaml;
 
 False
 

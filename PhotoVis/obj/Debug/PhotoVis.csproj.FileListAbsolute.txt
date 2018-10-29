@@ -72,9 +72,10 @@ C:\dev\git\PhotoVis\PhotoVis\obj\Debug\PhotoVis.g.resources
 C:\dev\git\PhotoVis\PhotoVis\obj\Debug\PhotoVis.csproj.CoreCompileInputs.cache
 C:\dev\git\PhotoVis\PhotoVis\obj\Debug\PhotoVis.exe
 C:\dev\git\PhotoVis\PhotoVis\obj\Debug\PhotoVis.pdb
-C:\dev\git\PhotoVis\PhotoVis\obj\Debug\MainWindow.deleteme.g.cs
-C:\dev\git\PhotoVis\PhotoVis\obj\Debug\AlternativeStart.deleteme.g.cs
-C:\dev\git\PhotoVis\PhotoVis\obj\Debug\MainWindow.deleteme.baml
-C:\dev\git\PhotoVis\PhotoVis\obj\Debug\AlternativeStart.deleteme.baml
-C:\dev\git\PhotoVis\PhotoVis\obj\Debug\ImageDroppable.g.cs
-C:\dev\git\PhotoVis\PhotoVis\obj\Debug\ImageDroppable.baml
+C:\dev\git\PhotoVis\PhotoVis\obj\Debug\Style\DarkStyle.baml
+C:\dev\git\PhotoVis\PhotoVis\bin\Debug\Newtonsoft.Json.dll
+C:\dev\git\PhotoVis\PhotoVis\bin\Debug\SpikeAccountManager.dll
+C:\dev\git\PhotoVis\PhotoVis\bin\Debug\SpikeAccountManager.pdb
+C:\dev\git\PhotoVis\PhotoVis\bin\Debug\SpikeAccountManager.dll.config
+C:\dev\git\PhotoVis\PhotoVis\obj\Debug\Controls\RangeSlider.baml
+C:\dev\git\PhotoVis\PhotoVis\obj\Debug\Controls\RangeSlider.g.cs

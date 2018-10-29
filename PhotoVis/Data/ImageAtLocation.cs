@@ -15,6 +15,13 @@ namespace PhotoVis.Data
 {
     public class ImageAtLocation : Entity, IImageAtLocation
     {
+        public enum LocationSourceType
+        {
+            Unknown,
+            Manual,
+            GPS
+        }
+
         private string _thumbBase64;
 
         public int ProjectId { get; set; }
@@ -25,11 +32,14 @@ namespace PhotoVis.Data
         public BitmapSource Thumbnail { get; set; }
         public int Heading { get; set; }
         public int Rotation { get; set; }
+        public LocationSourceType LocationSource { get; set; }
+        public string Creator { get; set; }
+
         public string Title
         {
             get
             {
-                return this.ID.ToString();
+                return this.Creator + " " + Path.GetFileName(this.ImagePath);
             }
         }
 
@@ -40,7 +50,15 @@ namespace PhotoVis.Data
                 return this.Location != null;
             }
         }
-        
+
+        public string ThumbnailToolTip
+        {
+            get
+            {
+                return this.Creator + " " + this.TimeImageTaken.ToString(App.RegionalCulture);
+            }
+        }
+
         /// <summary>
         /// Default constructor for JSON serialization
         /// </summary>
@@ -73,6 +91,8 @@ namespace PhotoVis.Data
                 this._thumbBase64 = row[DImageAtLocation.Thumbnail].ToString();
             }
             //this.Rotation = int.Parse(row[DImageAtLocation.Rotation].ToString());
+            this.LocationSource = (LocationSourceType)int.Parse(row[DImageAtLocation.LocationSource].ToString());
+            this.Creator = row[DImageAtLocation.Creator].ToString();
 
             this.TimeImageTaken = DateTime.Parse(row[DImageAtLocation.TimeImageTaken].ToString(), App.RegionalCulture);
             this.TimeIndexed = DateTime.Parse(row[DImageAtLocation.TimeIndexed].ToString(), App.RegionalCulture);
@@ -80,7 +100,7 @@ namespace PhotoVis.Data
             this.GetThumbnailImage();
         }
 
-        public ImageAtLocation(int projectId, Location location, string path, string thumbnailBase64, DateTime imageTakenTime, double heading)
+        public ImageAtLocation(int projectId, Location location, string path, string thumbnailBase64, LocationSourceType sourceType, string creator, DateTime imageTakenTime, double heading)
         {
             this.ProjectId = projectId;
             this.ImagePath = path;
@@ -88,6 +108,8 @@ namespace PhotoVis.Data
             this.Location = location;
             this.Heading = (int)heading;
             this.Rotation = 0;
+            this.LocationSource = sourceType;
+            this.Creator = creator;
             this.TimeImageTaken = imageTakenTime;
 
             this.GetThumbnailImage();
@@ -134,7 +156,12 @@ namespace PhotoVis.Data
         {
             // Write to database
             Dictionary<string, object> row = new Dictionary<string, object>();
+            Dictionary<string, object> where = new Dictionary<string, object>();
 
+            if (this.ID != 0)
+            {
+                where.Add(DImageAtLocation.Id, this.ID);
+            }
             row.Add(DImageAtLocation.ProjectId, this.ProjectId);
             row.Add(DImageAtLocation.ImagePath, this.ImagePath);
             
@@ -151,11 +178,19 @@ namespace PhotoVis.Data
             {
                 row.Add(DImageAtLocation.Thumbnail, this._thumbBase64);
             }
-
+            row.Add(DImageAtLocation.LocationSource, (int)this.LocationSource);
+            row.Add(DImageAtLocation.Creator, this.Creator);
             row.Add(DImageAtLocation.TimeImageTaken, this.TimeImageTaken.ToString(App.RegionalCulture));
             row.Add(DImageAtLocation.TimeIndexed, DateTime.Now.ToString(App.RegionalCulture));
-
-            int numAffected = App.DB.InsertValue(DTables.Images, row);
+            int numAffected = 0;
+            if (this.ID != 0)
+            {
+                numAffected = App.DB.UpdateValue(DTables.Images, where, row);
+            }
+            else
+            {
+                numAffected = App.DB.InsertValue(DTables.Images, row);
+            }
             return numAffected;
         }
     }

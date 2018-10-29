@@ -32,21 +32,33 @@ namespace PhotoVis.Data
         public void Add(ImageAtLocation entity)
         {
             this.images.Add(entity);
-            this.TriggerCollectionChanged();
+            this.Sort();
+            this.TriggerCollectionChanged(false);
         }
 
         public void AddRange(List<ImageAtLocation> ents)
         {
             this.images.AddRange(ents);
-            this.TriggerCollectionChanged();
+            this.Sort();
+            this.TriggerCollectionChanged(false);
         }
         
         public void Remove(ImageAtLocation entity)
         {
             this.images.Remove(entity);
-            this.TriggerCollectionChanged();
+            this.TriggerCollectionChanged(false);
         }
 
+        private void Sort()
+        {
+            string userName = System.Security.Principal.WindowsIdentity.GetCurrent().Name;
+            this.images = this.images
+                .OrderBy(x => x.Creator == userName ? 0 : 1)
+                .ThenBy(x => x.Creator)
+                .ThenByDescending(x => x.TimeImageTaken)
+                .ToList();
+        }
+        
         public List<Entity> AsEntities()
         {
             List<Entity> ents = new List<Entity>();
@@ -62,11 +74,12 @@ namespace PhotoVis.Data
             this.images.Clear();
         }
 
-        public void TriggerCollectionChanged()
+        public void TriggerCollectionChanged(bool forceUpdate)
         {
             EntityCollectionChangedEventArgs args = new EntityCollectionChangedEventArgs();
             args.ProjectId = this.projectId;
             args.Entities = this.images;
+            args.ForceUpdate = forceUpdate;
             OnCollectionChanged(args);
         }
 
@@ -102,6 +115,7 @@ namespace PhotoVis.Data
     {
         public int ProjectId { get; set; }
         public List<ImageAtLocation> Entities { get; set; }
+        public bool ForceUpdate { get; set; }
     }
 
     public delegate void EntityCollectionChangedEventHandler(Object sender, EntityCollectionChangedEventArgs e);

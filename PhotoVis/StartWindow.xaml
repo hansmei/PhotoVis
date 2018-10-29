@@ -30,13 +30,13 @@
         </DataTemplate>
     </Window.Resources>
 
-    <DockPanel LastChildFill="True">
+    <DockPanel LastChildFill="True" Background="#ff555555">
         <Border DockPanel.Dock="Top">
             <ItemsControl ItemsSource="{Binding PageViewModels}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Button Width="100" Height="50" 
-                            Background="RoyalBlue" Foreground="AntiqueWhite" Content="{Binding Name}"
+                            Content="{Binding Name}"
                             Command="{Binding DataContext.ChangePageCommand,
                                 RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
                             CommandParameter="{Binding }"

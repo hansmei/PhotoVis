@@ -17,6 +17,8 @@ namespace PhotoVis.Data.DatabaseTables
         public static string Altitude = "Altitude";
         public static string Heading = "Heading";
         public static string Rotation = "Rotation";
+        public static string LocationSource = "LocationSource";
+        public static string Creator = "Creator";
         public static string TimeImageTaken = "TimeImageTaken";
         public static string TimeIndexed = "TimeIndexed";
     }

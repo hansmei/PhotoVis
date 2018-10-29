@@ -127,6 +127,8 @@ namespace PhotoVis.Util
             table.Columns.Append(DImageAtLocation.Altitude, ADOX.DataTypeEnum.adDouble);
             table.Columns.Append(DImageAtLocation.Heading, ADOX.DataTypeEnum.adInteger);
             table.Columns.Append(DImageAtLocation.Rotation, ADOX.DataTypeEnum.adInteger);
+            table.Columns.Append(DImageAtLocation.LocationSource, ADOX.DataTypeEnum.adInteger);
+            table.Columns.Append(DImageAtLocation.Creator);
             table.Columns.Append(DImageAtLocation.TimeImageTaken);
             table.Columns.Append(DImageAtLocation.TimeIndexed);
 
@@ -144,6 +146,7 @@ namespace PhotoVis.Util
             table.Columns[DImageAtLocation.Longitude].Attributes = ColumnAttributesEnum.adColNullable;
             table.Columns[DImageAtLocation.Altitude].Attributes = ColumnAttributesEnum.adColNullable;
             table.Columns[DImageAtLocation.Heading].Attributes = ColumnAttributesEnum.adColNullable;
+            table.Columns[DImageAtLocation.LocationSource].Attributes = ColumnAttributesEnum.adColNullable;
 
             return table;
         }

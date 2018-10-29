@@ -3,7 +3,13 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              >
     <Application.Resources>
-        <ImageSource x:Key="Image_Greenpin">pack://application:,,,Resources/green_pin.png</ImageSource>
-        <BitmapImage x:Key="Bitmap_Greenpin" UriSource="../Resources/green_pin.png" />
+        <ResourceDictionary>
+            <ImageSource x:Key="Image_Greenpin">pack://application:,,,Resources/green_pin.png</ImageSource>
+            <BitmapImage x:Key="Bitmap_Greenpin" UriSource="../Resources/green_pin.png" />
+            <BitmapImage x:Key="GoogleStreetView" UriSource="../Resources/Street_View_logo.png" />
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Style/DarkStyle.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

@@ -166,13 +166,15 @@ namespace PhotoVis.Util
             string updates = "";
             for (int i = 0; i < rowValues.Count; i++)
             {
-                updates += "{" + counter++ + "} = {" + counter++ + "}";
+                updates += " {" + counter++ + "} = {" + counter++ + "}";
+                if (i != rowValues.Count - 1)
+                    updates += ",";
             }
 
             string condition = "";
             for (int i = 0; i < where.Count; i++)
             {
-                condition += "{" + counter++ + "} = {" + counter++ + "}";
+                condition += " {" + counter++ + "} = {" + counter++ + "}";
                 if (i != where.Count - 1)
                     condition += " AND ";
             }
@@ -191,7 +193,14 @@ namespace PhotoVis.Util
                 }
                 else
                 {
-                    arguments.Add(this.sqlQuoteOrDefault(this.escapeString(pair.Value.ToString())));
+                    if (pair.Value is int || pair.Value is double)
+                    {
+                        arguments.Add(pair.Value.ToString());
+                    }
+                    else
+                    {
+                        arguments.Add(this.sqlQuoteOrDefault(this.escapeString(pair.Value.ToString())));
+                    }
                 }
             }
 
@@ -216,7 +225,7 @@ namespace PhotoVis.Util
                 }
             }
 
-            string commandString = "UPDATE {0} SET " + updates + " WHERE " + condition + ";";
+            string commandString = "UPDATE {0} SET" + updates + " WHERE" + condition + ";";
             string sqlString = string.Format(commandString, arguments.ToArray());
             int numRowsAffected = this.query(sqlString);
 

@@ -17,17 +17,17 @@ namespace PhotoVis.Util
 {
     class ImageHelper
     {
-        public static string GetProjectThumbnailsFolder(int projectId)
-        {
-            string thumbFolder = Path.Combine(App.ProjctsDataRoot, projectId.ToString());
-            return thumbFolder;
-        }
+        //public static string GetProjectThumbnailsFolder(int projectId)
+        //{
+        //    string thumbFolder = Path.Combine(App.ProjctsDataRoot, projectId.ToString());
+        //    return thumbFolder;
+        //}
 
-        public static string GetProjectThumbnailPath(int projectId)
-        {
-            string imagePath = Path.Combine(App.ProjctsDataRoot, "Thumb_" + projectId + ".png");
-            return imagePath;
-        }
+        //public static string GetProjectThumbnailPath(int projectId)
+        //{
+        //    string imagePath = Path.Combine(App.ProjctsDataRoot, "Thumb_" + projectId + ".png");
+        //    return imagePath;
+        //}
 
         public static string GetProjectThumbnailBase64Path(int projectId)
         {
@@ -79,6 +79,15 @@ namespace PhotoVis.Util
                 DImage resized = CropImage(image, r);
 
                 string base64resize = ImageToBase64(resized);
+
+                // Write to database
+                Dictionary<string, object> where = new Dictionary<string, object>();
+                where.Add(DAssignment.ProjectId, projectId);
+
+                Dictionary<string, object> row = new Dictionary<string, object>();
+                row.Add(DAssignment.Thumbnail, base64resize);
+                int numAffected = App.DB.UpdateValue(DTables.Assignments, where, row);
+
                 string base64path = GetProjectThumbnailBase64Path(projectId);
                 WriteBase64ToFile(base64path, base64resize);
 
@@ -88,8 +97,7 @@ namespace PhotoVis.Util
                 //// Make sure that file can be written and is not open
                 //if (File.Exists(path))
                 //{
-                //    FileInfo fileInfo = new FileInfo(path);
-                //    if (!IsFileLocked(fileInfo))
+                //    if (!FileHelper.IsFileLocked(path))
                 //    {
                 //        resized.Save(path);
                 //    }
