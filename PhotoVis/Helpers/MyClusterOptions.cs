@@ -18,9 +18,9 @@ namespace PhotoVis
             this.ClusterRadius = radius;
         }
 
-        public override Pushpin RenderEntity(Entity entity)
+        public override ColoredPushpin RenderEntity(Entity entity)
         {
-            var p = new Pushpin();
+            var p = new ColoredPushpin();
             MapLayer.SetPosition(p, entity.Location);
             p.Tag = entity;
             p.ToolTip = new ToolTip()
@@ -28,12 +28,16 @@ namespace PhotoVis
                 Content = (entity as ImageAtLocation).Title
             };
             
+            ControlTemplate myTemplate = (ControlTemplate)Application.Current.FindResource("PushpinColorTemplate");
+            p.Template = myTemplate;
+            p.ApplyTemplate();
+
             return p;
         }
         
-        public override Pushpin RenderCluster(ClusteredPoint cluster)
+        public override ColoredPushpin RenderCluster(ClusteredPoint cluster)
         {
-            var p = new Pushpin();
+            var p = new ColoredPushpin();
             MapLayer.SetPosition(p, cluster.Location);
             p.Content = "+";
             p.Tag = cluster;
@@ -41,6 +45,10 @@ namespace PhotoVis
             {
                 Content = string.Format("{0} Clustered Entities", cluster.EntityIds.Count)
             };
+
+            ControlTemplate myTemplate = (ControlTemplate)Application.Current.FindResource("PushpinColorTemplate");
+            p.Template = myTemplate;
+            p.ApplyTemplate();
 
             return p;
         }

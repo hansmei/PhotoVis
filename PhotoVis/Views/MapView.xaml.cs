@@ -66,8 +66,9 @@ namespace PhotoVis.Views
             InitializeComponent();
             _options = new MyClusterOptions(20);
             
-            App.MapVM.ImageLocations.CollectionChanged += ImageLocations_CollectionChanged;
-            App.MapVM.UnassignedImageLocations.CollectionChanged += UnassignedImageLocations_CollectionChanged; ;
+            //App.MapVM.ImageLocations.CollectionChanged += ImageLocations_CollectionChanged;
+            App.MapVM.FilterdImageLocations.CollectionChanged += ImageLocations_CollectionChanged;
+            App.MapVM.FilterdUnassignedImageLocations.CollectionChanged += UnassignedImageLocations_CollectionChanged; ;
             this.PreparePolygon();
             
             // Adds the layer that contains the polygon points
@@ -117,7 +118,8 @@ namespace PhotoVis.Views
             this.imageUpdateTimer = new Stopwatch();
             this.imageUpdateTimer.Start();
 
-            this.ShowAllDataPointClustered();
+            this.ShowAllData();
+            //this.ShowAllDataPointClustered();
         }
 
         private void MainWindow_KeyDown(object sender, KeyEventArgs e)
@@ -179,6 +181,13 @@ namespace PhotoVis.Views
                 );
         }
 
+        private void AgeSlider_DragCompleted(object sender, System.Windows.Controls.Primitives.DragCompletedEventArgs e)
+        {
+            App.MapVM.ApplyImageFilters();
+            this.ReloadAssignedImages(true);
+            this.ReloadUnassignedImages(true);
+        }
+
         private void ImageLocations_CollectionChanged(object sender, EntityCollectionChangedEventArgs e)
         {
             this.Dispatcher.Invoke(new Action(() =>
@@ -222,6 +231,11 @@ namespace PhotoVis.Views
             MyMap.Focus();
         }
 
+        private void OpenStreetViewNewWindow_Click(object sender, RoutedEventArgs e)
+        {
+            System.Diagnostics.Process.Start(this.MyBrowserControl.ModifiedURL);
+        }
+
         private void ShowAllData()
         {
             PushpinLayer.Children.Clear();
@@ -232,15 +246,19 @@ namespace PhotoVis.Views
                 return;
             }
 
-            if (App.MapVM.ImageLocations.Count == 0)
+            if (App.MapVM.FilterdImageLocations.Count == 0)
             {
                 StatusTbx.Text += "No database data found.\r\n";
                 return;
             }
 
-            foreach (var entity in App.MapVM.ImageLocations)
+            foreach (ImageAtLocation img in App.MapVM.FilterdImageLocations)
             {
-                PushpinLayer.Children.Add(_options.RenderEntity(entity));
+                ColoredPushpin p = _options.RenderEntity(img);
+                string strokeColor;
+                p.FillColor = App.MapVM.GetPushpinColors(img, out strokeColor);
+                p.StrokeColor = strokeColor;
+                PushpinLayer.Children.Add(p);
             }
 
             StatusTbx.Text += "All data displayed without clustering.\r\n";
@@ -257,7 +275,7 @@ namespace PhotoVis.Views
                 return;
             }
 
-            if (App.MapVM.ImageLocations.Count == 0)
+            if (App.MapVM.FilterdImageLocations.Count == 0)
             {
                 StatusTbx.Text += "No database data found.\r\n";
                 return;
@@ -270,7 +288,7 @@ namespace PhotoVis.Views
             PushpinLayer.Children.Add(layer.GetMapLayer());
 
             //Add mock data to cluster layer
-            layer.AddEntities(App.MapVM.ImageLocations.AsEntities());
+            layer.AddEntities(App.MapVM.FilterdImageLocations.AsEntities());
 
             //StatusTbx.Text += "Point based clustering is enabled.\r\n";
             
@@ -326,7 +344,8 @@ namespace PhotoVis.Views
             long time = this.imageUpdateTimer.ElapsedMilliseconds;
             if (time > 3000 || forceUpdate)
             {
-                this.ShowAllDataPointClustered();
+                this.ShowAllData();
+                //this.ShowAllDataPointClustered();
                 this.imageUpdateTimer.Restart();
             }
         }
@@ -336,7 +355,7 @@ namespace PhotoVis.Views
             long time = this.unassignedImageUpdateTimer.ElapsedMilliseconds;
             if(time > 3000 || forceUpdate)
             {
-                this.UnassignedImagesControl.ItemsSource = App.MapVM.UnassignedImageLocations;
+                this.UnassignedImagesControl.ItemsSource = App.MapVM.FilterdUnassignedImageLocations;
                 this.UnassignedImagesControl.Items.Refresh();
                 this.unassignedImageUpdateTimer.Restart();
             }
@@ -972,11 +991,13 @@ namespace PhotoVis.Views
         {
             if (e.Data.GetDataPresent("draggedImageWitoutLocation"))
             {
-                int countBefore = App.MapVM.UnassignedImageLocations.Count;
+                int countBefore = App.MapVM.FilterdUnassignedImageLocations.Count;
                 Location dropAt = this.MyMap.ViewportPointToLocation(e.GetPosition(this.MyMap));
                 ImageAtLocation image = e.Data.GetData("draggedImageWitoutLocation") as ImageAtLocation;
                 App.MapVM.UnassignedImageLocations.Remove(image);
                 App.MapVM.UnassignedImageLocations.TriggerCollectionChanged(true); // Force updating the content
+                App.MapVM.FilterdUnassignedImageLocations.Remove(image);
+                App.MapVM.FilterdUnassignedImageLocations.TriggerCollectionChanged(true); // Force updating the content
 
                 // Update the location add to images
                 image.Location = dropAt;
@@ -984,14 +1005,16 @@ namespace PhotoVis.Views
 
                 // Write data back to the database
                 image.SaveToDatabase();
-                
-                // Write a file to disk to help locate the image
 
-                
+                // Write a file to disk to help locate the image
+                FileHelper.CreateCoordinateFile(image.ImagePath, dropAt);
+
                 // Add to collection
                 App.MapVM.ImageLocations.Add(image);
                 App.MapVM.ImageLocations.TriggerCollectionChanged(true); // Force updating the content
-                int countAfter = App.MapVM.UnassignedImageLocations.Count;
+                App.MapVM.FilterdImageLocations.Add(image);
+                App.MapVM.FilterdImageLocations.TriggerCollectionChanged(true); // Force updating the content
+                int countAfter = App.MapVM.FilterdUnassignedImageLocations.Count;
             }
             else if (e.Data.GetDataPresent("googleStreetView"))
             {

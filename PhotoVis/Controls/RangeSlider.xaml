@@ -232,7 +232,7 @@
                     </Grid.RowDefinitions>
 
                     <Rectangle x:Name="PART_SelectionRange"/>
-
+                    
                     <Track x:Name="PART_Track" Grid.Row="1">
                         <Track.Thumb>
                             <Thumb Template="{StaticResource SliderThumbTemplate}"/>
@@ -252,6 +252,15 @@
                             </Thumb>
                         </Track.Thumb>-->
                     </Track>
+                    <Border Grid.Row="2" Height="3">
+                        <Border.Background>
+                            <LinearGradientBrush EndPoint="1,0" StartPoint="0,0">
+                                <GradientStop Color="Red" Offset="0.0"/>
+                                <GradientStop Color="Yellow" Offset="0.5"/>
+                                <GradientStop Color="LimeGreen" Offset="1.0"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                    </Border>
                 </Grid>
             </Border>
         </ControlTemplate>

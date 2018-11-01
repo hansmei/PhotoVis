@@ -33,13 +33,13 @@ namespace ClusterEngine
         /// </summary>
         /// <param name="entity">An Entity</param>
         /// <returns>A pushpin that represents the entity.</returns>
-        public abstract Pushpin RenderEntity(Entity entity);
+        public abstract ColoredPushpin RenderEntity(Entity entity);
 
         /// <summary>
         /// A callback method that is used to generate a pushpin for a cluster of entities.
         /// </summary>
         /// <param name="cluster">A clustered point.</param>
         /// <returns>A pushpin that represents the clustered entities.</returns>
-        public abstract Pushpin RenderCluster(ClusteredPoint cluster);
+        public abstract ColoredPushpin RenderCluster(ClusteredPoint cluster);
     }
 }

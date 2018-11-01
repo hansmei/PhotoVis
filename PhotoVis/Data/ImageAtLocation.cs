@@ -22,14 +22,16 @@ namespace PhotoVis.Data
             GPS
         }
 
-        private string _thumbBase64;
+        private string _thumbPathGuid;
+        //private string _thumbBase64;
 
         public int ProjectId { get; set; }
         public DateTime TimeImageTaken { get; set; }
         public DateTime TimeIndexed { get; set; }
 
         public string ImagePath { get; set; }
-        public BitmapSource Thumbnail { get; set; }
+        //public BitmapSource Thumbnail { get; set; }
+        public string ThumbnailPath { get; set; }
         public int Heading { get; set; }
         public int Rotation { get; set; }
         public LocationSourceType LocationSource { get; set; }
@@ -48,6 +50,19 @@ namespace PhotoVis.Data
             get
             {
                 return this.Location != null;
+            }
+        }
+
+
+        public string ThumbnailGuid
+        {
+            get
+            {
+                return _thumbPathGuid;
+            }
+            set
+            {
+                _thumbPathGuid = value;
             }
         }
 
@@ -88,7 +103,10 @@ namespace PhotoVis.Data
             this.Heading = int.Parse(row[DImageAtLocation.Heading].ToString());
             if(row[DImageAtLocation.Thumbnail].ToString() != "")
             {
-                this._thumbBase64 = row[DImageAtLocation.Thumbnail].ToString();
+                this._thumbPathGuid = row[DImageAtLocation.Thumbnail].ToString();
+                string thumbPath = Path.Combine(ImageHelper.GetProjectThumbnailsFolder(this.ProjectId),
+                    this._thumbPathGuid + ".png");
+                this.ThumbnailPath = thumbPath;
             }
             //this.Rotation = int.Parse(row[DImageAtLocation.Rotation].ToString());
             this.LocationSource = (LocationSourceType)int.Parse(row[DImageAtLocation.LocationSource].ToString());
@@ -96,62 +114,25 @@ namespace PhotoVis.Data
 
             this.TimeImageTaken = DateTime.Parse(row[DImageAtLocation.TimeImageTaken].ToString(), App.RegionalCulture);
             this.TimeIndexed = DateTime.Parse(row[DImageAtLocation.TimeIndexed].ToString(), App.RegionalCulture);
-
-            this.GetThumbnailImage();
         }
 
         public ImageAtLocation(int projectId, Location location, string path, string thumbnailBase64, LocationSourceType sourceType, string creator, DateTime imageTakenTime, double heading)
         {
             this.ProjectId = projectId;
             this.ImagePath = path;
-            this._thumbBase64 = thumbnailBase64;
+
+            this._thumbPathGuid = thumbnailBase64;
+            string thumbPath = Path.Combine(ImageHelper.GetProjectThumbnailsFolder(this.ProjectId),
+                this._thumbPathGuid + ".png");
+            this.ThumbnailPath = thumbPath;
             this.Location = location;
             this.Heading = (int)heading;
             this.Rotation = 0;
             this.LocationSource = sourceType;
             this.Creator = creator;
             this.TimeImageTaken = imageTakenTime;
-
-            this.GetThumbnailImage();
         }
-
-        public void SetThumbnailImage(string base64string)
-        {
-            this._thumbBase64 = base64string;
-            Image image = ImageHelper.Base64ToImage(this._thumbBase64);
-            byte[] imgBytes = ImageHelper.BytesFromImage(image);
-            BitmapSource source = ImageHelper.BitmapImageFromBuffer(imgBytes);
-            this.Thumbnail = source;
-        }
-
-        private void GetThumbnailImage()
-        {
-            if(this._thumbBase64 != "" && this._thumbBase64 != null)
-            {
-                Image image = ImageHelper.Base64ToImage(this._thumbBase64);
-                byte[] imgBytes = ImageHelper.BytesFromImage(image);
-                BitmapSource source = ImageHelper.BitmapImageFromBuffer(imgBytes);
-                this.Thumbnail = source;
-            }
-            //string thumb = ImageHelper.GetProjectThumbnailsFolder(this.ProjectId);
-            //string thumbSource = Path.Combine(thumb, Path.GetFileNameWithoutExtension(this.ImagePath) + ".txt");
-            
-            //if (File.Exists(thumbSource) && !FileHelper.IsFileLocked(thumbSource))
-            //{
-            //    string base64string = File.ReadAllText(thumbSource);
-            //    Image image = ImageHelper.Base64ToImage(base64string);
-            //    byte[] imgBytes = ImageHelper.BytesFromImage(image);
-            //    BitmapSource source = ImageHelper.BitmapImageFromBuffer(imgBytes);
-
-            //    this.Thumbnail = source;
-            //}
-            //else
-            //{
-            //    // TODO: Fix this
-            //    this.Thumbnail = null;
-            //}
-        }
-
+        
         public int SaveToDatabase()
         {
             // Write to database
@@ -174,9 +155,9 @@ namespace PhotoVis.Data
             row.Add(DImageAtLocation.Heading, this.Heading.ToString(App.RegionalCulture));
             row.Add(DImageAtLocation.Rotation, this.Rotation.ToString(App.RegionalCulture));
 
-            if(this._thumbBase64 != null && this._thumbBase64 != "")
+            if(this._thumbPathGuid != null && this._thumbPathGuid != "")
             {
-                row.Add(DImageAtLocation.Thumbnail, this._thumbBase64);
+                row.Add(DImageAtLocation.Thumbnail, this._thumbPathGuid);
             }
             row.Add(DImageAtLocation.LocationSource, (int)this.LocationSource);
             row.Add(DImageAtLocation.Creator, this.Creator);

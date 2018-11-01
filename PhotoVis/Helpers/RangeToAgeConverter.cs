@@ -18,31 +18,25 @@ namespace PhotoVis.Helpers
 {
     public class RangeToAgeConverter : ObservableObject, IValueConverter
     {
-        private DateTime _lowerAge;
-        private DateTime _upperAge;
-
-        private double numDaysInSpan;
-
+        private bool isInitialized = false;
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            // From a range of 0 to 100 to a datetime start and datetime end
-            if(numDaysInSpan == 0)
+            try
             {
-                IOrderedEnumerable<ImageAtLocation> query =
-                    from m in App.MapVM.ImageLocations
-                    orderby m.TimeImageTaken ascending
-                    select m;
+                // From a range of 0 to 100 to a datetime start and datetime end
+                if (!this.isInitialized)
+                {
+                    IntervalToAgeFilter.SetIntervalToAgeFilter();
+                    this.isInitialized = true;
+                }
 
-                _lowerAge = query.First().TimeImageTaken;
-                _upperAge = query.Last().TimeImageTaken;
-
-                numDaysInSpan = (_upperAge - _lowerAge).TotalDays;
+                DateTime pickedTime = IntervalToAgeFilter.ValueToDateTime((double)value);
+                return pickedTime.ToString("yyyy-MM-dd");
             }
-
-            double append = (double)value * numDaysInSpan / 100;
-            DateTime pickedTime = _lowerAge.AddDays(append);
-
-            return pickedTime.ToString("yyyy-MM-dd");
+            catch
+            {
+                return value;
+            }
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)

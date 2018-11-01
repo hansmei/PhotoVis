@@ -79,8 +79,13 @@
       <DependentUpon>RangeSlider.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\BrowserControl.cs" />
+    <Compile Include="Controls\MarkerPathsTest.xaml.cs">
+      <DependentUpon>MarkerPathsTest.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Data\DatabaseTables\DFolders.cs" />
     <Compile Include="Data\ImageAtLocationCollection.cs" />
+    <Compile Include="Helpers\ColorHelper.cs" />
+    <Compile Include="Helpers\IntervalToAgeFilter.cs" />
     <Compile Include="Helpers\RangeToAgeConverter.cs" />
     <Compile Include="Helpers\ImageIndexerTransporter.cs" />
     <Compile Include="Models\ImageFoldersModel.cs" />
@@ -123,6 +128,10 @@
     </Compile>
     <Compile Include="Helpers\CustomEntity.cs" />
     <Page Include="Controls\RangeSlider.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\MarkerPathsTest.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -1,9 +1,12 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Windows.Media;
+using Color = System.Drawing.Color;
 using PhotoVis.Models;
 using PhotoVis.Util;
 using PhotoVis.Helpers;
@@ -22,11 +25,15 @@ namespace PhotoVis.ViewModel
         private ProjectModel _currentProject;
         private string _statusText;
         private string _timeLastIndexed;
+        private string _overlayLoadMessage = "";
         private double _lowerAgeValue = 0;
         private double _upperAgeValue = 100;
         private bool _unassignedVisible = false;
+        private bool _showLoadingMessage = false;
         private ImageAtLocationCollection _imageLocations = new ImageAtLocationCollection();
+        private ImageAtLocationCollection _filteredImageLocations = new ImageAtLocationCollection();
         private ImageAtLocationCollection _unassignedImageLocations = new ImageAtLocationCollection();
+        private ImageAtLocationCollection _filteredUnassignedImageLocations = new ImageAtLocationCollection();
 
         private ICommand _startIndexCommand;
 
@@ -74,10 +81,47 @@ namespace PhotoVis.ViewModel
             }
             set
             {
-                if(_unassignedVisible != value)
+                if (_unassignedVisible != value)
                 {
                     _unassignedVisible = value;
                     OnPropertyChanged("UnassignedVisible");
+                }
+            }
+        }
+
+        public string OverlayLoadMessage
+        {
+            get
+            {
+                return _overlayLoadMessage;
+            }
+            set
+            {
+                if(_overlayLoadMessage != value)
+                {
+                    _overlayLoadMessage = value;
+                    if (_overlayLoadMessage == "")
+                        this.ShowLoadingText = false;
+                    else
+                        this.ShowLoadingText = true;
+                    OnPropertyChanged("OverlayLoadMessage");
+                }
+            }
+        }
+
+
+        public bool ShowLoadingText
+        {
+            get
+            {
+                return _showLoadingMessage;
+            }
+            set
+            {
+                if (_showLoadingMessage != value)
+                {
+                    _showLoadingMessage = value;
+                    OnPropertyChanged("ShowLoadingText");
                 }
             }
         }
@@ -90,11 +134,27 @@ namespace PhotoVis.ViewModel
             }
         }
 
+        public ImageAtLocationCollection FilterdImageLocations
+        {
+            get
+            {
+                return _filteredImageLocations;
+            }
+        }
+
         public ImageAtLocationCollection UnassignedImageLocations
         {
             get
             {
                 return _unassignedImageLocations;
+            }
+        }
+
+        public ImageAtLocationCollection FilterdUnassignedImageLocations
+        {
+            get
+            {
+                return _filteredUnassignedImageLocations;
             }
         }
 
@@ -174,7 +234,7 @@ namespace PhotoVis.ViewModel
             this._unassignedImageLocations = new ImageAtLocationCollection();
 
             // Set this to capture the change events
-            this._unassignedImageLocations.CollectionChanged += _unassignedImageLocations_CollectionChanged;
+            this._filteredUnassignedImageLocations.CollectionChanged += _unassignedImageLocations_CollectionChanged;
 
             App.MapVM = this; // Need this as this is not set until after the constructor is complete
 
@@ -182,6 +242,8 @@ namespace PhotoVis.ViewModel
             Tuple<int, int> data = AssignmentIndexer.LoadImagesFromDatabase(this._projectId);
             int numAvailableImages = data.Item1 + data.Item2;
             StatusText += string.Format("{0} Images loaded from database, where {1} are missing GPS information\r\n", numAvailableImages, data.Item2);
+
+            this.ApplyImageFilters();
 
             if(numAvailableImages == 0)
             {
@@ -195,6 +257,9 @@ namespace PhotoVis.ViewModel
 
         public void StartIndexBackgroundworker(ProjectModel model)
         {
+            StatusText += string.Format("Started indexing all folders\r\n");
+            this.OverlayLoadMessage = "Please wait\r\nLoading images from the specified folders.";
+
             foreach (ImageFoldersModel folderModel in model.ProjectFolders)
             {
                 // Get all folders subdirectories
@@ -235,6 +300,7 @@ namespace PhotoVis.ViewModel
                     int numAffected = App.DB.UpdateValue(DTables.Assignments, where, update);
 
                     StatusText += string.Format("Completed all subfolders of {0}.\r\n", p.FolderPath);
+                    StatusText += string.Format("To get an overview of all images without GPS coordinates, re-open this project.");
 
                     App.MapVM.ImageLocations.SetProjectId(p.ProjectId);
 
@@ -243,6 +309,9 @@ namespace PhotoVis.ViewModel
                     List<ImageAtLocation> validLocation = AssignmentIndexer.ExtractValidLocations(p.Images, out unknownLocations);
                     App.MapVM.ImageLocations.AddRange(validLocation);
                     //App.MapVM.UnassignedImageLocations.AddRange(unknownLocations);
+
+                    this.ApplyImageFilters();
+                    this.OverlayLoadMessage = "";
                 };
                 _worker.RunWorkerAsync(ps);
             }
@@ -289,6 +358,7 @@ namespace PhotoVis.ViewModel
                         List<ImageAtLocation> validLocation = AssignmentIndexer.ExtractValidLocations(p.Images, out unknownLocations);
                         App.MapVM.ImageLocations.AddRange(validLocation);
                         App.MapVM.UnassignedImageLocations.AddRange(unknownLocations);
+                        this.ApplyImageFilters();
 
                         // Write to time last indexed
                         Dictionary<string, object> where = new Dictionary<string, object>();
@@ -340,51 +410,51 @@ namespace PhotoVis.ViewModel
             {
                 // write your code here
                 StatusText += string.Format("Completed indexing all folders.\r\n");
-                App.MapVM.ImageLocations.TriggerCollectionChanged(true);
+                //App.MapVM.ImageLocations.TriggerCollectionChanged(true);
+                this.ApplyImageFilters();
+                App.MapVM.FilterdImageLocations.TriggerCollectionChanged(true);
                 App.MapVM.UnassignedImageLocations.TriggerCollectionChanged(true);
             }).ConfigureAwait(false);
         }
 
+        public void ApplyImageFilters()
+        {
+            IntervalToAgeFilter.SetIntervalToAgeFilter();
+
+            DateTime startTime = IntervalToAgeFilter.ValueToDateTime(LowerAgeValue);
+            DateTime endTime = IntervalToAgeFilter.ValueToDateTime(UpperAgeValue);
+
+            List<ImageAtLocation> list =
+                _imageLocations.Where(s => s.TimeImageTaken >= startTime && s.TimeImageTaken <= endTime).Select(s => s).ToList();
+            this._filteredImageLocations.Clear();
+            this._filteredImageLocations.AddRange(list);
+
+            List<ImageAtLocation> listUnassigned =
+                _unassignedImageLocations.Where(s => s.TimeImageTaken >= startTime && s.TimeImageTaken <= endTime).Select(s => s).ToList();
+            this._filteredUnassignedImageLocations.Clear();
+            this._filteredUnassignedImageLocations.AddRange(listUnassigned);
+        }
 
 
-        //private Task<ImageIndexerTransporter> AsyncIndexFolder(ImageIndexerTransporter transport)
-        //{
-        //    Task<ImageIndexerTransporter> task = Task.Run(() =>
-        //    {
-        //        List<ImageAtLocation> images = AssignmentIndexer.IndexImages(transport, SearchOption.TopDirectoryOnly);
-        //        transport.SetImages(images);
-        //        return transport;
-        //    });
-        //    return task;
-        //}
+        public string GetPushpinColors(ImageAtLocation img, out string strokeHex)
+        {
+            double percentAlongTotalRange = IntervalToAgeFilter.ImageToParameter(img);
+            Color fillColor = ColorHelper.GetBlendedColor(percentAlongTotalRange);
+            //Color fillColor = HSL2RGB(0.8, percentAlongTotalRange, 0.7, 0.6);
+            //Color fillColor = RainBowColor(percentAlongTotalRange * 255, 255);
+            //string fillHex = fillColor.ToString();
+            string fillHex = "#" + fillColor.Name.ToString();
+            Color strokeColor = ColorHelper.GetBlendedDarkerColor(percentAlongTotalRange);
+            //Color strokeColor = HSL2RGB(0.8, percentAlongTotalRange, 0.7, 0.2);
+            //Color strokeColor = RainBowColor(percentAlongTotalRange * 255, 255, 0);
+            //strokeHex = strokeColor.ToString();
+            strokeHex = "#" + strokeColor.Name.ToString();
 
-        //private Task<int> AsyncModifyCollections(ImageIndexerTransporter transport)
-        //{
-        //    Task<int> task = Task.Run(() =>
-        //    {
-        //        ImageIndexerTransporter p = transport;
-        //        StatusText += string.Format("Indexed folder {0}.\r\n", p.FolderPath);
+            //Color t = HSL2RGB(percentAlongTotalRange, 0.5, 0.5);
 
-        //        App.MapVM.ImageLocations.SetProjectId(p.ProjectId);
-
-        //        // Extract valid and invalid locations
-        //        List<ImageAtLocation> unknownLocations = new List<ImageAtLocation>();
-        //        List<ImageAtLocation> validLocation = AssignmentIndexer.ExtractValidLocations(p.Images, out unknownLocations);
-        //        App.MapVM.ImageLocations.AddRange(validLocation);
-        //        App.MapVM.UnassignedImageLocations.AddRange(unknownLocations);
-
-        //        // Write to time last indexed
-        //        Dictionary<string, object> where = new Dictionary<string, object>();
-        //        where.Add(DAssignment.ProjectId, p.ProjectId);
-
-        //        Dictionary<string, object> update = new Dictionary<string, object>();
-        //        update.Add(DAssignment.TimeLastIndexed, DateTime.Now.ToString(App.RegionalCulture));
-        //        int numAffected = App.DB.UpdateValue(DTables.Assignments, where, update);
-        //        return numAffected;
-        //    });
-        //    return task;
-        //}
-
+            return fillHex;
+        }
+        
 
         #region Events
 

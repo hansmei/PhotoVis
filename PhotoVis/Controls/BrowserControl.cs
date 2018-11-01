@@ -8,6 +8,8 @@ namespace PhotoVis.Controls
 {
     public class BrowserControl : Control
     {
+        private static BrowserControl currentBrowser;
+
         public static readonly DependencyProperty URLproperty
             = DependencyProperty.Register(
                 "URL",
@@ -30,6 +32,7 @@ namespace PhotoVis.Controls
         private static void OnURLPropertyChanged(object sender, DependencyPropertyChangedEventArgs args)
         {
             var browserControl = sender as BrowserControl;
+            currentBrowser = browserControl;
             if (browserControl != null)
             {
                 Uri uri = null;
@@ -59,6 +62,25 @@ namespace PhotoVis.Controls
         {
             get { return Convert.ToString(GetValue(URLproperty)); }
             set { SetValue(URLproperty, value); }
+        }
+
+        public string ModifiedURL
+        {
+            get
+            {
+                var template = currentBrowser.Template;
+                if (template != null)
+                {
+                    var internalBrowser =
+                        currentBrowser.Template.FindName("_InternalBrowser", currentBrowser) as WebBrowser;
+                    if (internalBrowser != null)
+                    {
+                        Uri uri = internalBrowser.Source;
+                        return uri.ToString();
+                    }
+                }
+                return URL;
+            }
         }
     }
 }

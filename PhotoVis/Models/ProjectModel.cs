@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
+using System.Linq;
 using System.Drawing;
 using System.IO;
 using System.Windows.Media.Imaging;
 using PhotoVis.Util;
+using PhotoVis.Data;
 using PhotoVis.Data.DatabaseTables;
 
 namespace PhotoVis.Models
@@ -17,6 +19,7 @@ namespace PhotoVis.Models
         private int _projectId;
         private string _projectName;
         private string _thumbnailBase64 = "";
+        private DateTime _timeCreated;
         private DateTime _timeLastIndexed;
         private ObservableCollection<ImageFoldersModel> _folders = new ObservableCollection<ImageFoldersModel>();
         private bool _hasBeenIndexed = false;
@@ -72,6 +75,19 @@ namespace PhotoVis.Models
                 {
                     _thumbnail = value;
                     OnPropertyChanged("Thumbnail");
+                }
+            }
+        }
+        
+        public DateTime TimeCreated
+        {
+            get { return _timeCreated; }
+            set
+            {
+                if (value != _timeCreated)
+                {
+                    _timeCreated = value;
+                    OnPropertyChanged("TimeCreated");
                 }
             }
         }
@@ -152,9 +168,9 @@ namespace PhotoVis.Models
                 this.SetThumbnailSource();
             } catch { }
 
-            //this.TimeCreated = DateTime.Parse(row[DAssignment.TimeCreated].ToString());
             try
             {
+                this.TimeCreated = DateTime.Parse(row[DAssignment.TimeCreated].ToString(), App.RegionalCulture);
                 this.TimeLastIndexed = DateTime.Parse(row[DAssignment.TimeLastIndexed].ToString(), App.RegionalCulture);
             }
             catch { }
@@ -215,7 +231,9 @@ namespace PhotoVis.Models
                 ProjectModel mod = LoadProject(int.Parse(row[DAssignment.ProjectId].ToString()));
                 projects.Add(mod);
             }
-            return projects;
+
+            List<ProjectModel> ordered = projects.OrderByDescending(s => s.TimeCreated).ToList();
+            return ordered;
         }
 
         public static ProjectModel LoadProject(int id)
@@ -250,7 +268,7 @@ namespace PhotoVis.Models
                 row.Add(DAssignment.ProjectName, this.ProjectName);
                 row.Add(DAssignment.Latitude, 0.0);
                 row.Add(DAssignment.Longitude, 0.0);
-                row.Add(DAssignment.TimeCreated, DateTime.Now.ToString());
+                row.Add(DAssignment.TimeCreated, DateTime.Now.ToString(App.RegionalCulture));
                 numAffected = App.DB.InsertValue(DTables.Assignments, row);
             }
             else
@@ -264,7 +282,7 @@ namespace PhotoVis.Models
                 row.Add(DAssignment.Longitude, 0);
                 //row.Add(DImageAtLocation.Latitude, this.Location.Latitude.ToString(App.RegionalCulture));
                 //row.Add(DImageAtLocation.Longitude, this.Location.Longitude.ToString(App.RegionalCulture));
-                row.Add(DAssignment.TimeCreated, DateTime.Now.ToString());
+                row.Add(DAssignment.TimeCreated, DateTime.Now.ToString(App.RegionalCulture));
                 numAffected = App.DB.UpdateValue(DTables.Assignments, where, row);
             }
 
@@ -289,17 +307,51 @@ namespace PhotoVis.Models
 
         public int Delete()
         {
-            // Remove all images
+            // First get an array of all existing paths for this project
+            Dictionary<string, object> whereArray = new Dictionary<string, object>();
+            whereArray.Add(DImageAtLocation.ProjectId, this.ProjectId);
+
+            DataTable data = App.DB.GetValues(DTables.Images, whereArray, new string[] { "*" });
+            
+            // Remove all image thumbnail files
+            foreach (DataRow row in data.Rows)
+            {
+                ImageAtLocation img = new ImageAtLocation(row);
+                // Delete the thumbnail
+                string projectThumbFolder = ImageHelper.GetProjectThumbnailsFolder(this.ProjectId);
+                string thumbPath = Path.Combine(projectThumbFolder, img.ThumbnailGuid + ".png");
+                if (File.Exists(thumbPath))
+                {
+                    File.Delete(thumbPath);
+                }
+            }
+            data.Dispose();
+
+            // Remove the directory for the project
+            string projectDirectory = ImageHelper.GetProjectThumbnailsFolder(this.ProjectId);
+            if (Directory.Exists(projectDirectory))
+            {
+                Directory.Delete(projectDirectory, true);
+            }
+
+            // Delete the thumb base 64 string
+            string projectThumbTxt = ImageHelper.GetProjectThumbnailBase64Path(this.ProjectId);
+            if (File.Exists(projectThumbTxt))
+            {
+                File.Delete(projectThumbTxt);
+            }
+
+            // Remove all images from the database
             Dictionary<string, object> whereDeleteImages = new Dictionary<string, object>();
             whereDeleteImages.Add(DImageAtLocation.ProjectId, this.ProjectId);
             int numAffectedImages = App.DB.DeleteValue(DTables.Images, whereDeleteImages);
 
-            // Remove all folders
+            // Remove all folders from the database
             Dictionary<string, object> whereDeleteFolders = new Dictionary<string, object>();
             whereDeleteFolders.Add(DImageAtLocation.ProjectId, this.ProjectId);
             int numAffectedFolders = App.DB.DeleteValue(DTables.Folders, whereDeleteFolders);
-            
-            // Remove the project
+
+            // Remove the project from the database
             Dictionary<string, object> whereDeleteProject = new Dictionary<string, object>();
             whereDeleteProject.Add(DAssignment.ProjectId, this.ProjectId);
             int numAffectedProjects = App.DB.DeleteValue(DTables.Assignments, whereDeleteProject);

@@ -79,3 +79,5 @@ C:\dev\git\PhotoVis\PhotoVis\bin\Debug\SpikeAccountManager.pdb
 C:\dev\git\PhotoVis\PhotoVis\bin\Debug\SpikeAccountManager.dll.config
 C:\dev\git\PhotoVis\PhotoVis\obj\Debug\Controls\RangeSlider.baml
 C:\dev\git\PhotoVis\PhotoVis\obj\Debug\Controls\RangeSlider.g.cs
+C:\dev\git\PhotoVis\PhotoVis\obj\Debug\Controls\MarkerPathsTest.g.cs
+C:\dev\git\PhotoVis\PhotoVis\obj\Debug\Controls\MarkerPathsTest.baml

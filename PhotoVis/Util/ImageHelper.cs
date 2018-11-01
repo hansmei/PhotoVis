@@ -17,11 +17,11 @@ namespace PhotoVis.Util
 {
     class ImageHelper
     {
-        //public static string GetProjectThumbnailsFolder(int projectId)
-        //{
-        //    string thumbFolder = Path.Combine(App.ProjctsDataRoot, projectId.ToString());
-        //    return thumbFolder;
-        //}
+        public static string GetProjectThumbnailsFolder(int projectId)
+        {
+            string thumbFolder = Path.Combine(App.ProjctsDataRoot, projectId.ToString());
+            return thumbFolder;
+        }
 
         //public static string GetProjectThumbnailPath(int projectId)
         //{
@@ -111,6 +111,7 @@ namespace PhotoVis.Util
                 return base64String;
             }
         }
+
 
         public static void WriteBase64ToFile(string path, string base64string)
         {

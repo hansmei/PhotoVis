@@ -119,6 +119,9 @@
                                Height="40" Foreground="Red" Background="Pink" 
                                Text="Press Escape to return to map view" />
                 </Grid>
+                <Grid Grid.Row="2" HorizontalAlignment="Right" VerticalAlignment="Top">
+                    <Button FontSize="14" Margin="3" Padding="3" Content="Open in browser" Click="OpenStreetViewNewWindow_Click"/>
+                </Grid>
                 <!--<StackPanel HorizontalAlignment="Left"
                             Margin="10,10,0,0" Grid.Row="1" VerticalAlignment="Top">
                     <TextBlock x:Name="FileName" TextWrapping="Wrap" Text="" Foreground="White"/>
@@ -172,7 +175,7 @@
                                         <Border Grid.Row="1" BorderThickness="1" BorderBrush="DimGray" >
                                             <Image Height="200" Width="200" Tag="{Binding }" Stretch="UniformToFill" MouseUp="Image_MouseUp"
                                                    ToolTip="{Binding ThumbnailToolTip}"
-                                                   Source="{Binding Thumbnail, IsAsync=True}" />
+                                                   Source="{Binding ThumbnailPath, IsAsync=True}" />
                                         </Border>
                                     </Grid>
                                 </DataTemplate>
@@ -190,6 +193,8 @@
                     </m:Map>
                     <TextBlock Padding="10" Margin="10" TextWrapping="Wrap" Text="Shift+Click and drag to select images" 
                             Width="220" VerticalAlignment="Top" HorizontalAlignment="Left" Height="40" Foreground="Red" Background="White" IsHitTestVisible="False"/>
+                    <TextBlock Padding="50" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False" Style="{StaticResource TextLight}" Background="#aa222222"
+                               Text="{Binding OverlayLoadMessage}" Visibility="{Binding Path=ShowLoadingText, Converter={StaticResource BoolToVisConverter} }"/>
                     <Border x:Name="debugContainer" Visibility="Collapsed" Background="Black" VerticalAlignment="Top" HorizontalAlignment="Left" Opacity="0.8" BorderBrush="White" BorderThickness="2" CornerRadius="5">
                         <StackPanel x:Name="eventsPanel" IsHitTestVisible="False" Canvas.Left="0" Canvas.Top="0"/>
                     </Border>
@@ -203,10 +208,10 @@
                 <TextBlock x:Name="AgeUpperValue" Style="{StaticResource TextLight}" HorizontalAlignment="Right" 
                            Text="{Binding ElementName=AgeSlider, Path=UpperValue, Converter={StaticResource RangeToAgeConverter}}" Margin="10,1,10,1" />
                 <StackPanel Width="500" HorizontalAlignment="Center">
-                    <tx:RangeSlider x:Name="AgeSlider"
+                    <tx:RangeSlider x:Name="AgeSlider" Thumb.DragCompleted="AgeSlider_DragCompleted"
                                    Margin="20" 
-                                   LowerValue="{Binding LowerAgeValue}"
-                                   UpperValue="{Binding UpperAgeValue}"
+                                   LowerValue="{Binding LowerAgeValue, Mode=TwoWay}"
+                                   UpperValue="{Binding UpperAgeValue, Mode=TwoWay}"
                                    Minimum="0"
                                    Maximum="100"
                                    />
@@ -240,7 +245,6 @@
                 <TextBlock HorizontalAlignment="Center" Foreground="#ff555555" Margin="3" Text="{Binding TimeLastIndexed}"/>
             </StackPanel>
 
-            
             <StackPanel Grid.Row="1">
                 <TextBlock Text="Status:" Background="#ff4a4a4a" Foreground="WhiteSmoke"/>
                 <tx:ScrollingTextBox x:Name="StatusTbx" Text="{Binding StatusText}" 

@@ -30,6 +30,26 @@ namespace PhotoVis.Util
             foreach (DataRow row in data.Rows)
             {
                 ImageAtLocation img = new ImageAtLocation(row);
+                //if (!IO.File.Exists(img.ImagePath))
+                //{
+                //    // Delete the thumbnail
+                //    string projectThumbFolder = ImageHelper.GetProjectThumbnailsFolder(projectId);
+                //    string thumbPath = IO.Path.Combine(projectThumbFolder, img.ThumbnailGuid + ".png");
+                //    if(IO.File.Exists(thumbPath))
+                //    {
+                //        IO.File.Delete(thumbPath);
+                //    }
+
+                //    // Delete this entry from the database
+                //    Dictionary<string, object> where = new Dictionary<string, object>();
+                //    where.Add(DImageAtLocation.Id, img.ID);
+
+                //    int affected = App.DB.DeleteValue(DTables.Images, where);
+
+                //    // Skip files that no longer exists
+                //    continue;
+                //}
+
                 if (img.HasLocation)
                 {
                     App.MapVM.ImageLocations.Add(img);
@@ -126,10 +146,10 @@ namespace PhotoVis.Util
 
         public static List<ImageAtLocation> IndexImages(ImageIndexerTransporter folderToIndex, IO.SearchOption searchMode)
         {
-            //// First make sure a folder for thumbnails images exist for this project
-            //string projectThumbFolder = ImageHelper.GetProjectThumbnailsFolder(folderToIndex.ProjectId);
-            //if (!IO.Directory.Exists(projectThumbFolder))
-            //    IO.Directory.CreateDirectory(projectThumbFolder);
+            // First make sure a folder for thumbnails images exist for this project
+            string projectThumbFolder = ImageHelper.GetProjectThumbnailsFolder(folderToIndex.ProjectId);
+            if (!IO.Directory.Exists(projectThumbFolder))
+                IO.Directory.CreateDirectory(projectThumbFolder);
 
             HashSet<string> unique = GetUniquePathNames();
 
@@ -167,53 +187,70 @@ namespace PhotoVis.Util
 
         private static ImageAtLocation ProcessImage(string path, int projectId)
         {
-
             IEnumerable<Directory> directories = ImageMetadataReader.ReadMetadata(path);
-
             var gps = ImageMetadataReader.ReadMetadata(path)
                             .OfType<GpsDirectory>()
                             .FirstOrDefault();
-            
+
+            // Define some variables
+            Location useLocation = null;
+            float degrees = 0;
+            ImageAtLocation.LocationSourceType locationType = ImageAtLocation.LocationSourceType.Unknown;
+
+            // Try to fetch the location
             if (gps != null)
             {
-
-                var location = gps.GetGeoLocation();
-
-                // TODO: Better handling of this
+                GeoLocation location = gps.GetGeoLocation();
+            
+                // Test if the location is valid
                 if (location == null || location.IsZero)
-                    return null;
+                {
+                    useLocation = FileHelper.ReadCoordinateFile(path);
+                    locationType = ImageAtLocation.LocationSourceType.Manual;
+                }
+                else
+                {
+                    useLocation = new Location(location.Latitude, location.Longitude);
+                    bool hasDegrees = gps.TryGetSingle(GpsDirectory.TagImgDirection, out degrees);
+                    locationType = ImageAtLocation.LocationSourceType.GPS;
+                }
+            }
+            else
+            {
+                useLocation = FileHelper.ReadCoordinateFile(path);
+            }
+            
+            // obtain a specific directory
+            var ifd0Directory = directories.OfType<ExifIfd0Directory>().FirstOrDefault();
+            var subIfdDirectory = directories.OfType<ExifSubIfdDirectory>().FirstOrDefault();
 
-                var thumb = ImageMetadataReader.ReadMetadata(path)
-                                .OfType<ExifThumbnailDirectory>()
-                                .FirstOrDefault();
+            // get tag description
+            DateTime imageTakenTime;
+            bool gotDateTime = false;
+            if (ifd0Directory != null)
+            {
+                gotDateTime = ifd0Directory.TryGetDateTime(GpsDirectory.TagDateTime, out imageTakenTime);
+            }
+            else
+            {
+                imageTakenTime = IO.File.GetCreationTime(path);
+            }
 
-                //SaveThumbnailImage(path, projectId);
-                //string thumbBase64 = ExtractThumbnailBase64(path);
-
-                // obtain a specific directory
-                var ifd0Directory = directories.OfType<ExifIfd0Directory>().FirstOrDefault();
-                var subIfdDirectory = directories.OfType<ExifSubIfdDirectory>().FirstOrDefault();
-
-                if (subIfdDirectory == null)
-                    return null;
+            if (useLocation != null)
+            { 
+                //if (subIfdDirectory == null)
+                //    return null;
 
                 // create a descriptor
                 //var descriptor = new ExifSubIfdDescriptor(subIfdDirectory);
                 //string res = descriptor.GetOrientationDescription();
-
-                // get tag description
-                DateTime imageTakenTime;
-                bool gotDateTime = ifd0Directory.TryGetDateTime(GpsDirectory.TagDateTime, out imageTakenTime);
-
-                float degrees = 0;
-                bool hasDegrees = gps.TryGetSingle(GpsDirectory.TagImgDirection, out degrees);
-
+                
                 return new ImageAtLocation(
                         projectId,
-                        new Location(location.Latitude, location.Longitude),
+                        useLocation,
                         path,
                         null,
-                        ImageAtLocation.LocationSourceType.GPS,
+                        locationType,
                         GetFileCreator(path),
                         imageTakenTime,
                         degrees
@@ -222,34 +259,24 @@ namespace PhotoVis.Util
             }
             else
             {
-                // Image dont have image data, allow for addition still
-                var thumb = ImageMetadataReader.ReadMetadata(path)
-                                .OfType<ExifThumbnailDirectory>()
-                                .FirstOrDefault();
-
-                //SaveThumbnailImage(path, projectId);
+                // Create a thumbnail 
                 string thumbBase64 = ExtractThumbnailBase64(path);
                 string resized = null;
-                if(thumbBase64 != null)
+                string thumbId = "";
+                if (thumbBase64 != null)
+                {
                     resized = ImageHelper.ResizeBase64ImageString(thumbBase64, 200, 200);
-                
-                // obtain a specific directory
-                var ifd0Directory = directories.OfType<ExifIfd0Directory>().FirstOrDefault();
-                var subIfdDirectory = directories.OfType<ExifSubIfdDirectory>().FirstOrDefault();
-
-                if (subIfdDirectory == null)
-                    return null;
-
-                // get tag description
-                DateTime imageTakenTime;
-                bool gotDateTime = ifd0Directory.TryGetDateTime(GpsDirectory.TagDateTime, out imageTakenTime);
+                    Guid guid = Guid.NewGuid();
+                    thumbId = guid.ToString();
+                    SaveThumbnailImage(projectId, thumbId, resized);
+                }
 
                 return new ImageAtLocation(
                         projectId,
                         null,
                         path,
-                        resized,
-                        ImageAtLocation.LocationSourceType.Unknown,
+                        thumbId,
+                        locationType,
                         GetFileCreator(path),
                         imageTakenTime,
                         0
@@ -286,22 +313,30 @@ namespace PhotoVis.Util
             }
         }
 
-        //protected static void SaveThumbnailImage(string path, int projectId)
-        //{
-        //    try
-        //    {
-        //        Image thumbnailImage = ExifThumbReader.ReadThumb(path);
-        //        string base64thumb = ImageHelper.ImageToBase64(thumbnailImage);
+        protected static void SaveThumbnailImage(int projectId, string guid, string base64thumb)
+        {
+            try
+            {
+                string projectThumbFolder = ImageHelper.GetProjectThumbnailsFolder(projectId);
+                string thumbPath = IO.Path.Combine(projectThumbFolder, guid + ".png");
 
-        //        string projectThumbFolder = ImageHelper.GetProjectThumbnailsFolder(projectId);
-        //        string thumbPath = IO.Path.Combine(projectThumbFolder, IO.Path.GetFileNameWithoutExtension(path) + ".txt");
-        //        ImageHelper.WriteBase64ToFile(thumbPath, base64thumb);
-        //    }
-        //    catch
-        //    {
+                // Convert Base64 String to byte[]
+                byte[] imageBytes = Convert.FromBase64String(base64thumb);
+                using (IO.MemoryStream ms = new IO.MemoryStream(imageBytes))
+                {
+                    // Convert byte[] to Image
+                    ms.Write(imageBytes, 0, imageBytes.Length);
+                    Image image = Image.FromStream(ms, true);
 
-        //    }
-        //}
+                    image.Save(thumbPath);
+                    image.Dispose();
+                }
+            }
+            catch
+            {
+
+            }
+        }
     }
 
 }
