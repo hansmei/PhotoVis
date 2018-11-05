@@ -16,7 +16,7 @@ namespace PhotoVis
     /// </summary>
     public partial class App : Application
     {
-        //public static string BingMapKey = ConfigurationManager.AppSettings.Get("BingMapsKey");
+        public static string BingMapKey = ConfigurationManager.AppSettings.Get("BingMapsKey");
         //public static string CommonFilesRootPath = ConfigurationManager.AppSettings.Get("CommonFilesRootPath");
         public static readonly string AppDataRoot = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
         public static readonly string PhotoVisDataRoot = Path.Combine(AppDataRoot, "PhotoVis");

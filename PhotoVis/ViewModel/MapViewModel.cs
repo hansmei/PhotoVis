@@ -5,7 +5,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using System.Windows.Media;
+using System.Configuration;
+using Microsoft.Maps.MapControl.WPF;
 using Color = System.Drawing.Color;
 using PhotoVis.Models;
 using PhotoVis.Util;
@@ -44,6 +45,16 @@ namespace PhotoVis.ViewModel
         public string Name
         {
             get { return "Map display"; }
+        }
+
+        private readonly ApplicationIdCredentialsProvider bingMapsCredentials = new ApplicationIdCredentialsProvider(
+            ConfigurationManager.AppSettings.Get("BingMapsKey"));
+        public ApplicationIdCredentialsProvider BingMapKey
+        {
+            get
+            {
+                return bingMapsCredentials;
+            }
         }
 
         public int ProjectId
