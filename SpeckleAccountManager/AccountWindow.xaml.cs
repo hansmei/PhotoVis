@@ -219,16 +219,17 @@ namespace SpikeAccountManager
                     MessageBox.Show("Failed to register user. " + response.Message); RegisterButton.IsEnabled = true; RegisterButton.Content = "Register"; return;
                 }
 
-                var serverName = parsedReply.serverName;
+                //var serverName = parsedReply.serverName;
 
                 //saveAccountToDisk(this.RegisterEmail.Text, response.Resource.Apitoken, (string)serverName, this.RegisterServerUrl.Text, this.RegisterServerUrl.Text);
 
                 MessageBox.Show("Account creation ok: You're good to go.");
                 //this.restApi = this.RegisterServerUrl.Text;
-                this.apitoken = response.Resource.Apitoken;
+                //this.apitoken = response.Resource.Apitoken;
                 RegisterButton.IsEnabled = true;
                 RegisterButton.Content = "Register";
-                this.Close();
+                this.DialogResult = true;
+                //this.Close();
             }
             catch (Exception err)
             {

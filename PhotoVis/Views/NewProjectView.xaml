@@ -25,10 +25,10 @@
                 <RowDefinition Height="34"/>
             </Grid.RowDefinitions>
 
-            <Label Content="Enter a unique ID (use the project number)" Margin="5"/>
+            <Label Style="{StaticResource WhiteLabel}" Content="Enter a unique ID (use the project number)" Margin="5"/>
             <TextBox Grid.Row="1" Name="ID" Text="{Binding ProjectId, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanEditProjectId}" Margin="5"/>
-            <Label Grid.Row="2" Foreground="Red" Content="Project ID already used!" Visibility="{Binding Path=ProjectIdAlreadyExists, Converter={StaticResource BoolToVisConverter} }" Margin="5"/>
-            <Label Grid.Row="3" Content="Enter a name for the new project" Margin="5"/>
+            <Label Style="{StaticResource ErrorLabel}" Grid.Row="2" Content="Project ID already used!" Visibility="{Binding Path=ProjectIdAlreadyExists, Converter={StaticResource BoolToVisConverter} }" Margin="5"/>
+            <Label Style="{StaticResource WhiteLabel}" Grid.Row="3" Content="Enter a name for the new project" Margin="5"/>
             <TextBox Grid.Row="4" Name="Name" Text="{Binding ProjectName, UpdateSourceTrigger=PropertyChanged}" Margin="5"/>
             <Button Grid.Row="5" Content="Add folders" Command="{Binding Path=AddProjectFolderCommand}" Margin="5"/>
         </Grid>

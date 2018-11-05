@@ -121,7 +121,7 @@ namespace PhotoVis.Util
             table.Columns.Append(DImageAtLocation.Id, ADOX.DataTypeEnum.adInteger);
             table.Columns.Append(DImageAtLocation.ProjectId, ADOX.DataTypeEnum.adInteger);
             table.Columns.Append(DImageAtLocation.ImagePath);
-            table.Columns.Append(DImageAtLocation.Thumbnail, ADOX.DataTypeEnum.adLongVarWChar);
+            table.Columns.Append(DImageAtLocation.Thumbnail); //ADOX.DataTypeEnum.adLongVarWChar
             table.Columns.Append(DImageAtLocation.Latitude, ADOX.DataTypeEnum.adDouble);
             table.Columns.Append(DImageAtLocation.Longitude, ADOX.DataTypeEnum.adDouble);
             table.Columns.Append(DImageAtLocation.Altitude, ADOX.DataTypeEnum.adDouble);

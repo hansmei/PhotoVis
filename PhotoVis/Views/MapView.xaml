@@ -151,23 +151,52 @@
                         Images without GPS location<LineBreak />
                         Drag onto the map to position
                     </TextBlock>
-                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    <ListBox x:Name="UnassignedImagesControl"
+                             Grid.Row="1"
+                             ItemsSource="{Binding UnassignedImageLocations}"
+                             PreviewMouseLeftButtonDown="Images_PreviewMouseLeftButtonDown" 
+                             PreviewMouseMove="Images_MouseMove"
+                            VirtualizingStackPanel.IsVirtualizing="True"
+                            VirtualizingStackPanel.VirtualizationMode="Recycling"
+                        >
+                        <ListBox.Template>
+                            <ControlTemplate>
+                                <ScrollViewer>
+                                    <ItemsPresenter />
+                                </ScrollViewer>
+                            </ControlTemplate>
+                        </ListBox.Template>
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <VirtualizingStackPanel Orientation="Vertical" />
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="200"/>
+                                    </Grid.RowDefinitions>
+                                    <Border Grid.Row="1" BorderThickness="1" BorderBrush="DimGray" >
+                                        <Image Height="200" Width="200" Tag="{Binding }" Stretch="UniformToFill" MouseUp="Image_MouseUp"
+                                                   ToolTip="{Binding ThumbnailToolTip}"
+                                                   Source="{Binding ThumbnailPath, IsAsync=True}" />
+                                    </Border>
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <!--<ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                         <ItemsControl x:Name="UnassignedImagesControl" ItemsSource="{Binding UnassignedImageLocations}"
                                             PreviewMouseLeftButtonDown="Images_PreviewMouseLeftButtonDown" 
                                             PreviewMouseMove="Images_MouseMove">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <VirtualizingStackPanel Orientation="Vertical"/>
+                                    <VirtualizingStackPanel Orientation="Vertical" />
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <!--<Button Tag="{Binding }" Width="200" Height="200" BorderBrush="Black" BorderThickness="1"
-                                            Style="{StaticResource ImageThumbButtonStyle}" >
-                                        <Image Height="200" Width="200" Stretch="UniformToFill" 
-                                                   ToolTip="{Binding ThumbnailToolTip}"
-                                                   Source="{Binding Thumbnail, IsAsync=True}" />
-                                    </Button>-->
                                     <Grid>
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="200"/>
@@ -181,7 +210,7 @@
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
-                    </ScrollViewer>
+                    </ScrollViewer>-->
                 </Grid>
                 <Grid>
                     <m:Map Name="MyMap" Mode="Road" CredentialsProvider="AtDFmbUgIwetT7gjLyhAWl6KDFCy4C5V3fgmchMfozGt1qS1wfiu3N67j-Hm6GyT"

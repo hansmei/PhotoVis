@@ -46,9 +46,9 @@ namespace PhotoVis
                 Content = string.Format("{0} Clustered Entities", cluster.EntityIds.Count)
             };
 
-            ControlTemplate myTemplate = (ControlTemplate)Application.Current.FindResource("PushpinColorTemplate");
-            p.Template = myTemplate;
-            p.ApplyTemplate();
+            //ControlTemplate myTemplate = (ControlTemplate)Application.Current.FindResource("PushpinColorTemplate");
+            //p.Template = myTemplate;
+            //p.ApplyTemplate();
 
             return p;
         }

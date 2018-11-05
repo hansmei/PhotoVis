@@ -55,22 +55,53 @@ namespace PhotoVis
             }
 
         }
-
-        protected override void OnStartup(StartupEventArgs e)
+        
+        private void LoginStart(object sender, StartupEventArgs e)
         {
-            base.OnStartup(e);
+            //Disable shutdown when the dialog closes
+            Current.ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
-            //// Fetch the user account
-            //SpikeAccountManager.AccountWindow window = new SpikeAccountManager.AccountWindow();
-            //bool? result = window.ShowDialog();
+            // Fetch the user account
+            SpikeAccountManager.AccountWindow window = new SpikeAccountManager.AccountWindow();
+            bool? result = window.ShowDialog();
 
-            //if(result.HasValue && result.Value)
-            //{
-                StartWindow app = new StartWindow();
-                VM = new ApplicationViewModel();
-                app.DataContext = VM;
-                app.Show();
-            //}
+            if (result.HasValue && result.Value)
+            {
+                this.ApplicationStart(sender, e);
+            }
+            else
+            {
+                MessageBox.Show("Unable to establish a valid login.", "Error", MessageBoxButton.OK);
+                Current.Shutdown(-1);
+            }
         }
+
+        private void ApplicationStart(object sender, StartupEventArgs e)
+        {
+            StartWindow app = new StartWindow();
+            //Re-enable normal shutdown mode.
+            Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
+            Current.MainWindow = app;
+            VM = new ApplicationViewModel();
+            app.DataContext = VM;
+            app.Show();
+        }
+
+        //protected override void OnStartup(StartupEventArgs e)
+        //{
+        //    base.OnStartup(e);
+
+        //    // Fetch the user account
+        //    SpikeAccountManager.AccountWindow window = new SpikeAccountManager.AccountWindow();
+        //    bool? result = window.ShowDialog();
+
+        //    if (result.HasValue && result.Value)
+        //    {
+        //        StartWindow app = new StartWindow();
+        //        VM = new ApplicationViewModel();
+        //        app.DataContext = VM;
+        //        app.ShowDialog();
+        //    }
+        //}
     }
 }

@@ -176,7 +176,7 @@ namespace PhotoVis.Views
             this.ZoomMapToFitPins(this.MyMap, App.MapVM.ImageLocations);
             MyMap.Focus();
 
-            Task.Delay(600).ContinueWith(
+            Task.Delay(1000).ContinueWith(
                 t => this.Dispatcher.Invoke(new Action(() => ImageHelper.SnapshotMap(App.MapVM.ProjectId, this.MyMap)))
                 );
         }
@@ -261,7 +261,7 @@ namespace PhotoVis.Views
                 PushpinLayer.Children.Add(p);
             }
 
-            StatusTbx.Text += "All data displayed without clustering.\r\n";
+            //StatusTbx.Text += "All data displayed without clustering.\r\n";
             
         }
 
@@ -892,6 +892,9 @@ namespace PhotoVis.Views
                 // Get the dragged ListViewItem
                 ItemsControl control = sender as ItemsControl;
                 Image inner = FindAnchestor<Image>((DependencyObject)e.OriginalSource);
+
+                if (inner == null)
+                    return;
 
                 //// Find the data behind the ListViewItem
                 //ImageAtLocation image = (Image)control.ItemContainerGenerator.
