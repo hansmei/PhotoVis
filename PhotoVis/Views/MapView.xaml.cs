@@ -500,7 +500,7 @@ namespace PhotoVis.Views
             this.isOverlayActive = true;
             this.Overlay.Visibility = Visibility.Visible;
             this.Overlay.Focus();
-            int currentImageIndex = 0;
+            this.currentImageIndex = 0;
 
             this.preloadedImages = new BitmapImage[this.selectedImages.Count];
 
@@ -526,7 +526,7 @@ namespace PhotoVis.Views
             this.ZoomMapToFitPins(this.InnerMap, this.selectedImages);
 
             // Show the first image
-            this.ShowImage(currentImageIndex);
+            this.ShowImage(this.currentImageIndex);
         }
 
         private bool PreloadImageSelection(List<ImageAtLocation> images)
