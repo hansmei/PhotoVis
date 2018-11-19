@@ -34,6 +34,7 @@
         </DataTemplate>
     </UserControl.Resources>-->
 
+    
     <DockPanel Margin="50">
         <!--<DockPanel DockPanel.Dock="Top">
             <TextBlock Margin="10,2" DockPanel.Dock="Left" Text="Enter Product Id" VerticalAlignment="Center" />
@@ -49,6 +50,14 @@
 
         <ContentControl Margin="10" Content="{Binding Path=CurrentProject}" />-->
 
+        <!--<Grid x:Name="Overlay" Panel.ZIndex="1000" Visibility="Visible">
+            <Grid.Background>
+                <SolidColorBrush Color="Black" Opacity=".85"/>
+            </Grid.Background>
+            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{StaticResource TextLight}">
+                Please wait... Loading images from database
+            </TextBlock>
+        </Grid>-->
 
         <ScrollViewer VerticalScrollBarVisibility="Auto">
             <ItemsControl Grid.Row="1" Grid.Column="1" ItemsSource="{Binding AllProjects}">
