@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Windows;
 using BingMapsCredentials;
 using PhotoVis.Util;
+using PhotoVis.Views;
 
 namespace PhotoVis
 {
@@ -20,7 +21,8 @@ namespace PhotoVis
 
         private void Licenses_Click(object sender, RoutedEventArgs e)
         {
-            Process.Start(@"http://vavisjon.no");
+            LicenseView licenseView = new LicenseView();
+            licenseView.ShowDialog();
         }
 
         private void BingMap_Click(object sender, RoutedEventArgs e)

@@ -132,3 +132,5 @@ C:\git\PhotoVis\PhotoVis\bin\Debug\BingMapsCredentials.dll.config
 C:\git\PhotoVis\PhotoVis\obj\Debug\PhotoVis_Content.g.cs
 C:\git\PhotoVis\PhotoVis\bin\Debug\Resources\Manual.pdf
 C:\git\PhotoVis\PhotoVis\bin\Debug\Microsoft.Maps.MapControl.WPF.dll
+C:\git\PhotoVis\PhotoVis\obj\Debug\Views\LicenseView.g.cs
+C:\git\PhotoVis\PhotoVis\obj\Debug\Views\LicenseView.baml

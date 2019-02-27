@@ -127,14 +127,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="PhotoVis.exe" size="393720">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="PhotoVis.exe" size="408056">
       <assemblyIdentity name="PhotoVis" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>U3hD4v5pVNb5NGzTQhVVH6ojVfIlnhWiNDJPSeQPS4w=</dsig:DigestValue>
+        <dsig:DigestValue>+H2lX3SrBGvFU7bfnRQl987fL/Oh2js0hgIxXR6ernk=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

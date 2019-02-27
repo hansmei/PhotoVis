@@ -149,6 +149,9 @@
     <Compile Include="ViewModel\MapViewModel.cs" />
     <Compile Include="ViewModel\NewProjectViewModel.cs" />
     <Compile Include="ViewModel\ProjectsViewModel.cs" />
+    <Compile Include="Views\LicenseView.xaml.cs">
+      <DependentUpon>LicenseView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\MapView.xaml.cs">
       <DependentUpon>MapView.xaml</DependentUpon>
     </Compile>
@@ -176,6 +179,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Style\DarkStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\LicenseView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
