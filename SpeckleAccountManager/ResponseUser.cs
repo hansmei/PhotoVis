@@ -55,6 +55,27 @@ namespace SpikeAccountManager
         {
             return Newtonsoft.Json.JsonConvert.DeserializeObject<ResponseUser>(data);
         }
-
     }
+
+
+    [Serializable]
+    public partial class ResponseError : ResponseBase
+    {
+        [Newtonsoft.Json.JsonProperty("response", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Error Resource { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("responses", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public List<Error> Resources { get; set; }
+
+        public string ToJson()
+        {
+            return Newtonsoft.Json.JsonConvert.SerializeObject(this);
+        }
+
+        public static ResponseError FromJson(string data)
+        {
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<ResponseError>(data);
+        }
+    }
+
 }

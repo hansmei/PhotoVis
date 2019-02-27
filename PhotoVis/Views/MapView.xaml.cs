@@ -8,6 +8,7 @@ using System.Data;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Linq;
+using System.Globalization;
 using System.Windows.Input;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -108,7 +109,7 @@ namespace PhotoVis.Views
 
             MyMap.KeyDown += MyMap_KeyDown;
             MyMap.Loaded += MyMap_Loaded;
-
+            
             Application.Current.MainWindow.KeyDown += MainWindow_KeyDown;
             Application.Current.MainWindow.KeyUp += MainWindow_KeyUp;
             
@@ -125,15 +126,13 @@ namespace PhotoVis.Views
         private void MainWindow_KeyDown(object sender, KeyEventArgs e)
         {
             base.OnKeyDown(e);
-            if (e.Key == Key.LeftShift)
+            if (e.Key == Key.LeftShift || e.Key == Key.RightShift)
             {
                 isShiftDown = true;
             }
             else if (e.Key == Key.Escape)
             {
-                this.preloadedImages = null;
-                this.Overlay.Visibility = Visibility.Collapsed;
-                this.isOverlayActive = false;
+                this.ReturnToMap();
             }
             else if (e.Key == Key.Left && this.isOverlayActive)
             {
@@ -157,10 +156,17 @@ namespace PhotoVis.Views
             }
         }
 
+        private void ReturnToMap()
+        {
+            this.preloadedImages = null;
+            this.Overlay.Visibility = Visibility.Collapsed;
+            this.isOverlayActive = false;
+        }
+
         private void MainWindow_KeyUp(object sender, KeyEventArgs e)
         {
             base.OnKeyUp(e);
-            if (e.Key == Key.LeftShift)
+            if (e.Key == Key.LeftShift || e.Key == Key.RightShift)
             {
                 this.SelectPushpins();
                 this.isMouseDown = false;
@@ -234,6 +240,7 @@ namespace PhotoVis.Views
         private void OpenStreetViewNewWindow_Click(object sender, RoutedEventArgs e)
         {
             System.Diagnostics.Process.Start(this.MyBrowserControl.ModifiedURL);
+            //System.Diagnostics.Process.Start(this.StreetViewContainer.Source.ToString());
         }
 
         private void ShowAllData()
@@ -326,7 +333,15 @@ namespace PhotoVis.Views
         private void ZoomMapToFitPins(Map map, IEnumerable<ImageAtLocation> images)
         {
             List<Location> locations = images.Where(s => s.Location != null).Select(s => s.Location).ToList();
-            LocationRect bounds = new LocationRect(locations);
+            LocationRect bounds;
+            if (locations.Count == 0)
+            {
+                bounds = new LocationRect(new Location(59.917, 10.728, 0), 10000, 10000);// Start zooming in on Norway
+            }
+            else
+            {
+                bounds = new LocationRect(locations);
+            }
 
             double height = Measure(bounds.North, bounds.East, bounds.South, bounds.West);
             int zoom = GetZoomLevel(height, bounds.Center.Latitude, map.ActualHeight, map.ActualWidth);
@@ -431,7 +446,7 @@ namespace PhotoVis.Views
 
         private void SelectPushpins()
         {
-            if (App.MapVM.ImageLocations.Count == 0)
+            if (App.MapVM != null && App.MapVM.ImageLocations.Count == 0)
                 return;
 
             Location corner1 = MyMap.ViewportPointToLocation(this.polygonStartPoint);
@@ -584,6 +599,13 @@ namespace PhotoVis.Views
 
         private void ShowImage(int imageIndex)
         {
+            // Check for potential error
+            if (this.selectedImages.Count <= imageIndex || imageIndex < 0)
+            {
+                this.ReturnToMap();
+                return;
+            }
+
             ImageAtLocation image = this.selectedImages[imageIndex];
             if (this.preloadedImages != null && this.preloadedImages[imageIndex] != null)
             {
@@ -617,8 +639,12 @@ namespace PhotoVis.Views
             Pushpin activePin = null;
             foreach (ImageAtLocation img in this.selectedImages)
             {
-                Pushpin pin = _options.RenderEntity(img);
-                pin.Content = i + 1;
+                ColoredPushpin pin = _options.RenderEntity(img);
+                string strokeColor;
+                pin.FillColor = App.MapVM.GetPushpinColors(img, out strokeColor);
+                pin.StrokeColor = strokeColor;
+
+                pin.Tag = i + 1;
                 if (i == imageIndex)
                 {
                     ControlTemplate myTemplate = (ControlTemplate)FindResource("PushpinControlTemplate");
@@ -638,9 +664,24 @@ namespace PhotoVis.Views
             if (image.HasLocation)
             {
                 // Set the URL for the google street view
+                List<Location> locations = this.selectedImages.Where(s => s.Location != null).Select(s => s.Location).ToList();
+                LocationRect bounds = new LocationRect(locations);
+
+                double height = Measure(bounds.North, bounds.East, bounds.South, bounds.West);
+                //int zoom = GetZoomLevel(height, bounds.Center.Latitude, this.webView.ActualHeight, this.webView.ActualWidth);
+                //if (zoom > 19)
+                //    zoom = 19;
+                //if (zoom < 0)
+                //    zoom = 19;
+                //if (zoom < 4)
+                //    zoom = 4;
+
+                //this.StreetViewContainer.NavigationCompleted += StreetViewContainer_NavigationCompleted;
                 string googleStreetViewString =
                         string.Format(@"https://www.google.com/maps/@?api=1&map_action=pano&viewpoint={0},{1}&heading=-45&pitch=0&fov=80",
-                        image.Location.Latitude, image.Location.Longitude);
+                        //string.Format(@"https://www.google.com/maps/@{0},{1},{2}z",
+                        image.Location.Latitude.ToString(CultureInfo.InvariantCulture), image.Location.Longitude.ToString(CultureInfo.InvariantCulture));
+                //this.StreetViewContainer.Navigate(new Uri(googleStreetViewString));
                 this.MyBrowserControl.URL = googleStreetViewString;
             }
         }
@@ -655,41 +696,6 @@ namespace PhotoVis.Views
             string argument = "/select, \"" + activeImage.ImagePath + "\"";
             Process.Start("explorer.exe", argument); //System.IO.Path.GetDirectoryName(activeImage.ImagePath)
         }
-
-        //protected override void OnKeyDown(KeyEventArgs e)
-        //{
-        //    base.OnKeyDown(e);
-        //    if (e.Key == Key.LeftShift)
-        //    {
-        //        isShiftDown = true;
-        //    }
-        //    else if (e.Key == Key.Escape)
-        //    {
-        //        this.preloadedImages = null;
-        //        this.Overlay.Visibility = Visibility.Collapsed;
-        //        this.isOverlayActive = false;
-        //    }
-        //    else if (e.Key == Key.Left && this.isOverlayActive)
-        //    {
-        //        this.DisplayPrevImage();
-        //        e.Handled = true;
-        //    }
-        //    else if (e.Key == Key.Right && this.isOverlayActive)
-        //    {
-        //        this.DisplayNextImage();
-        //        e.Handled = true;
-        //    }
-        //    else if (e.Key == Key.Up && this.isOverlayActive)
-        //    {
-        //        this.DisplayPrevImage();
-        //        e.Handled = true;
-        //    }
-        //    else if (e.Key == Key.Down && this.isOverlayActive)
-        //    {
-        //        this.DisplayNextImage();
-        //        e.Handled = true;
-        //    }
-        //}
 
         private void MyMap_KeyDown(object sender, KeyEventArgs e)
         {
@@ -714,19 +720,6 @@ namespace PhotoVis.Views
                 e.Handled = true;
             }
         }
-
-        //protected override void OnKeyUp(KeyEventArgs e)
-        //{
-        //    base.OnKeyUp(e);
-        //    if (e.Key == Key.LeftShift)
-        //    {
-        //        this.SelectPushpins();
-        //        this.isMouseDown = false;
-        //        this.isShiftDown = false;
-        //        this.mapPolygon.Locations.Clear();
-        //        this.polygonPointLayer.Children.Clear();
-        //    }
-        //}
 
         void MapWithEvents_MouseLeftButtonUp(object sender, MouseEventArgs e)
         {
@@ -1032,5 +1025,19 @@ namespace PhotoVis.Views
         }
         #endregion
 
+        private void Previous_Click(object sender, RoutedEventArgs e)
+        {
+            this.DisplayPrevImage();
+        }
+
+        private void Next_Click(object sender, RoutedEventArgs e)
+        {
+            this.DisplayNextImage();
+        }
+
+        private void EscapeToMap_Click(object sender, RoutedEventArgs e)
+        {
+            this.ReturnToMap();
+        }
     }
 }

@@ -75,6 +75,7 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Error.cs" />
     <Compile Include="GzipContent.cs" />
     <Compile Include="ResponseUser.cs" />
     <Compile Include="SpikeAccount.cs" />
@@ -82,6 +83,7 @@
     <Compile Include="SpikeApiClientCalls.cs" />
     <Compile Include="SpikeApiClientExtensions.cs" />
     <Compile Include="SpikeApiClientHead.cs" />
+    <Compile Include="SpikeException.cs" />
     <Compile Include="SpikeServerResponse.cs" />
     <Compile Include="User.cs" />
     <Page Include="AccountWindow.xaml">
@@ -110,6 +112,7 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -133,12 +136,12 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\2xfucklogos%402x.png" />
+    <PackageReference Include="Newtonsoft.Json">
+      <Version>10.0.1</Version>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json">
-      <Version>11.0.1</Version>
-    </PackageReference>
+    <Resource Include="Resources\logo32px.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

@@ -47,8 +47,7 @@ namespace PhotoVis.ViewModel
             get { return "Map display"; }
         }
 
-        private readonly ApplicationIdCredentialsProvider bingMapsCredentials = new ApplicationIdCredentialsProvider(
-            ConfigurationManager.AppSettings.Get("BingMapsKey"));
+        private readonly ApplicationIdCredentialsProvider bingMapsCredentials; // = new ApplicationIdCredentialsProvider(ConfigurationManager.AppSettings.Get("BingMapsKey"));
         public ApplicationIdCredentialsProvider BingMapKey
         {
             get
@@ -237,8 +236,22 @@ namespace PhotoVis.ViewModel
 
         #endregion
 
+        public MapViewModel()
+        {
+            this._projectId = -1;
+            this._currentProject = new ProjectModel(-1, "Empty");
+            this._imageLocations = new ImageAtLocationCollection();
+            this._unassignedImageLocations = new ImageAtLocationCollection();
+
+            App.MapVM = this;
+        }
+
         public MapViewModel(ProjectModel model)
         {
+
+            BingMapsCredentialsProvider bingMapsCredentials = new BingMapsCredentialsProvider();
+            this.bingMapsCredentials = new ApplicationIdCredentialsProvider(bingMapsCredentials.Key);
+
             this._projectId = model.ProjectId;
             this._currentProject = model;
             this._imageLocations = new ImageAtLocationCollection();
@@ -250,9 +263,16 @@ namespace PhotoVis.ViewModel
             App.MapVM = this; // Need this as this is not set until after the constructor is complete
 
             // Create first load of content
-            Tuple<int, int> data = AssignmentIndexer.LoadImagesFromDatabase(this._projectId);
+            Tuple<int, int, int> data = AssignmentIndexer.LoadImagesFromDatabase(this._projectId);
             int numAvailableImages = data.Item1 + data.Item2;
-            StatusText += string.Format("{0} Images loaded from database, where {1} are missing GPS information\r\n", numAvailableImages, data.Item2);
+            StatusText += string.Format("{0} Images loaded from database, where {1} are missing GPS information.\r\n",
+                numAvailableImages, data.Item2);
+
+            // Print error text that some images could not be found or is erased
+            if(data.Item3 > 0)
+            {
+                StatusText += string.Format("{0} Images could no longer be found. They are either moved or erased.\r\n", data.Item3);
+            }
 
             this.ApplyImageFilters();
 

@@ -12,7 +12,7 @@ using System.Windows;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("VA Visjon")]
 [assembly: AssemblyProduct("PhotoVis")]
-[assembly: AssemblyCopyright("VA Visjon ©  2013")]
+[assembly: AssemblyCopyright("VA Visjon ©  2019")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

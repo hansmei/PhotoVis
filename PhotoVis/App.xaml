@@ -6,8 +6,9 @@
     <Application.Resources>
         <ResourceDictionary>
             <ImageSource x:Key="Image_Greenpin">pack://application:,,,Resources/green_pin.png</ImageSource>
-            <BitmapImage x:Key="Bitmap_Greenpin" UriSource="../Resources/green_pin.png" />
-            <BitmapImage x:Key="GoogleStreetView" UriSource="../Resources/Street_View_logo.png" />
+            <BitmapImage x:Key="Bitmap_Greenpin" UriSource="./Resources/green_pin.png" />
+            <BitmapImage x:Key="GoogleStreetView" UriSource="./Resources/Street_View_logo.png" />
+            <BitmapImage x:Key="PoweredByLogo" UriSource="./Resources/LogoWhite.png" />
             <ControlTemplate x:Key="PushpinColorTemplate" TargetType="{x:Type c:ColoredPushpin}">
                 <Grid Height="30">
                     <Path Stroke="{Binding StrokeColor, RelativeSource={RelativeSource TemplatedParent}}" 
@@ -26,7 +27,7 @@
                 </Grid>
             </ControlTemplate>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../Style/DarkStyle.xaml"/>
+                <ResourceDictionary Source="./Style/DarkStyle.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

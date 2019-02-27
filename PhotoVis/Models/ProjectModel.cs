@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Data;
 using System.Linq;
 using System.Drawing;
+using System.Windows;
 using System.IO;
 using System.Windows.Media.Imaging;
 using PhotoVis.Util;
@@ -307,6 +308,24 @@ namespace PhotoVis.Models
 
         public int Delete()
         {
+
+            //First prompt the user about deletion
+            MessageBoxResult messageBoxResult = MessageBox.Show("Are you sure you want to delete this project?",
+                "Delete Confirmation", System.Windows.MessageBoxButton.YesNo);
+            if (messageBoxResult == MessageBoxResult.No)
+            {
+                return 0;
+            }
+
+            // First dispose of the current project
+            if (App.MapVM != null)
+            {
+                App.MapVM.CurrentProject = null;
+                App.MapVM = null;
+                App.MapVM = new ViewModel.MapViewModel();
+                GC.Collect();
+            }
+
             // First get an array of all existing paths for this project
             Dictionary<string, object> whereArray = new Dictionary<string, object>();
             whereArray.Add(DImageAtLocation.ProjectId, this.ProjectId);

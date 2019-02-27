@@ -22,3 +22,11 @@ C:\dev\git\PhotoVis\ClusterEngine\obj\Debug\ClusterEngine.csprojResolveAssemblyR
 C:\dev\git\PhotoVis\ClusterEngine\obj\Debug\ClusterEngine.csproj.CoreCompileInputs.cache
 C:\dev\git\PhotoVis\ClusterEngine\obj\Debug\ClusterEngine.dll
 C:\dev\git\PhotoVis\ClusterEngine\obj\Debug\ClusterEngine.pdb
+C:\git\PhotoVis\ClusterEngine\bin\Debug\ClusterEngine.dll
+C:\git\PhotoVis\ClusterEngine\bin\Debug\ClusterEngine.pdb
+C:\git\PhotoVis\ClusterEngine\bin\Debug\Microsoft.Maps.MapControl.WPF.xml
+C:\git\PhotoVis\ClusterEngine\obj\Debug\ClusterEngine.csprojAssemblyReference.cache
+C:\git\PhotoVis\ClusterEngine\obj\Debug\ClusterEngine.csproj.CoreCompileInputs.cache
+C:\git\PhotoVis\ClusterEngine\obj\Debug\ClusterEngine.csproj.CopyComplete
+C:\git\PhotoVis\ClusterEngine\obj\Debug\ClusterEngine.dll
+C:\git\PhotoVis\ClusterEngine\obj\Debug\ClusterEngine.pdb

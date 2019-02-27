@@ -89,8 +89,13 @@ namespace SpikeAccountManager
                         {
                             var responseData_ = await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             var responded = Newtonsoft.Json.JsonConvert.DeserializeObject<SpikeServerResponse>(responseData_);
-                            throw new Exception("The HTTP status code of the response was not expected (" + (int)response_.StatusCode + ").");
-                            //throw new SpeckleException("The HTTP status code of the response was not expected (" + (int)response_.StatusCode + ").", (int)response_.StatusCode, responseData_, headers_, null);
+                            throw new SpikeException(
+                                "The HTTP status code of the response was not expected (" + (int)response_.StatusCode + ").",
+                                (int)response_.StatusCode,
+                                responseData_,
+                                headers_,
+                                null
+                            );
                         }
 
                         return default(ResponseUser);
@@ -156,7 +161,8 @@ namespace SpikeAccountManager
 
                         ProcessResponse(client_, response_);
 
-                        var status_ = ((int)response_.StatusCode).ToString();
+                        int statusCode = ((int)response_.StatusCode);
+                        var status_ = statusCode.ToString();
                         if (status_ == "200")
                         {
                             var responseData_ = await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -168,31 +174,44 @@ namespace SpikeAccountManager
                             }
                             catch (System.Exception exception_)
                             {
-                                throw new Exception("Could not deserialize the response body.");
-                                //throw new SpeckleException("Could not deserialize the response body.", (int)response_.StatusCode, responseData_, headers_, exception_);
+                                //throw new Exception("Could not deserialize the response body.");
+                                throw new SpikeException(
+                                    "Could not deserialize the response body.", 
+                                    (int)response_.StatusCode, 
+                                    responseData_, 
+                                    headers_, 
+                                    exception_
+                                    );
                             }
                         }
-                        //else
-                        //if (status_ == "400")
-                        //{
-                        //    var responseData_ = await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                        //    var result_ = default(ResponseBase);
-                        //    try
-                        //    {
-                        //        result_ = Newtonsoft.Json.JsonConvert.DeserializeObject<ResponseBase>(responseData_, _settings.Value);
-                        //    }
-                        //    catch (System.Exception exception_)
-                        //    {
-                        //        throw new SpeckleException("Could not deserialize the response body.", (int)response_.StatusCode, responseData_, headers_, exception_);
-                        //    }
-                        //    throw new SpeckleException<ResponseBase>("Fail whale.", (int)response_.StatusCode, responseData_, headers_, result_, null);
-                        //}
+                        else
+                        if (statusCode >= 400 && statusCode < 500)
+                        {
+                            var responseData_ = await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            var result_ = default(ResponseError);
+                            try
+                            {
+                                result_ = Newtonsoft.Json.JsonConvert.DeserializeObject<ResponseError>(responseData_, _settings.Value);
+                            }
+                            catch (System.Exception exception_)
+                            {
+                                throw new SpikeException("Could not deserialize the response body.", (int)response_.StatusCode, responseData_, headers_, exception_);
+                            }
+                            throw new SpikeException<ResponseError>("Bad request of some sort.", (int)response_.StatusCode, responseData_, headers_, result_, null);
+                        }
                         else
                         if (status_ != "200" && status_ != "204")
                         {
                             var responseData_ = await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new Exception("The HTTP status code of the response was not expected (" + (int)response_.StatusCode + ").");
-                            //throw new SpeckleException("The HTTP status code of the response was not expected (" + (int)response_.StatusCode + ").", (int)response_.StatusCode, responseData_, headers_, null);
+                            //throw new Exception("The HTTP status code of the response was not expected (" + (int)response_.StatusCode + ")." + 
+                            //    "\nReason: " + response_.ReasonPhrase);
+                            throw new SpikeException(
+                                "The HTTP status code of the response was not expected (" + (int)response_.StatusCode + ").", 
+                                (int)response_.StatusCode,
+                                responseData_,
+                                headers_,
+                                null
+                                );
                         }
 
                         return default(ResponseUser);

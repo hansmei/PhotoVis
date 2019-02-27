@@ -1,0 +1,28 @@
+﻿<Window x:Class="BingMapsCredentials.CreateKeyWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:BingMapsCredentials"
+        mc:Ignorable="d"
+        Title="Bing maps API key" Height="249" Width="613">
+    <StackPanel Background="#ff555555">
+        <StackPanel Margin="20">
+            <TextBlock Foreground="White" TextWrapping="Wrap" Text="You need to create your own Bing maps API credentials key. Paste your key in the input field below and click save to store it."/>
+            <Grid Margin="0,15">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="85*"/>
+                    <ColumnDefinition Width="15*"/>
+                </Grid.ColumnDefinitions>
+                <TextBox Grid.Column="0" x:Name="BingMapsKey" Text="" />
+                <Button Grid.Column="1" Content="Save" Click="SaveButton_Click"/>
+            </Grid>
+            <TextBlock Foreground="White" TextWrapping="Wrap" Text="To get an API key for bing maps, you must create an account with Bing Maps developer. You can do that from here:"/>
+            <TextBlock>           
+                <Hyperlink Foreground="NavajoWhite" NavigateUri="https://www.bingmapsportal.com/" RequestNavigate="Hyperlink_RequestNavigate">
+                    Go to Bing maps developer center
+                </Hyperlink>
+            </TextBlock>
+        </StackPanel>
+    </StackPanel>
+</Window>

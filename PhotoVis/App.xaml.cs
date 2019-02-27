@@ -31,8 +31,8 @@ namespace PhotoVis
         {
             // Set invariant culture on main thread
             RegionalCulture = Thread.CurrentThread.CurrentCulture;
-            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
-                        
+            Thread.CurrentThread.CurrentCulture = RegionalCulture;
+
             // Make sure some special folders exist
             if (!Directory.Exists(PhotoVisDataRoot))
                 Directory.CreateDirectory(PhotoVisDataRoot);
@@ -50,8 +50,8 @@ namespace PhotoVis
             }
             catch
             {
-                System.Windows.MessageBox.Show("Fatal error, could not connect to database.");
-                System.Windows.Application.Current.Shutdown();
+                MessageBox.Show("Fatal error, could not connect to database.");
+                Application.Current.Shutdown();
             }
 
         }
@@ -68,6 +68,10 @@ namespace PhotoVis
             if (result.HasValue && result.Value)
             {
                 this.ApplicationStart(sender, e);
+            }
+            else if(result.HasValue && !result.Value)
+            {
+                Current.Shutdown(-1);
             }
             else
             {
@@ -87,21 +91,42 @@ namespace PhotoVis
             app.Show();
         }
 
-        //protected override void OnStartup(StartupEventArgs e)
-        //{
-        //    base.OnStartup(e);
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            base.OnStartup(e);
 
-        //    // Fetch the user account
-        //    SpikeAccountManager.AccountWindow window = new SpikeAccountManager.AccountWindow();
-        //    bool? result = window.ShowDialog();
+            // Fetch the user account
+            SpikeAccountManager.AccountWindow window = new SpikeAccountManager.AccountWindow();
 
-        //    if (result.HasValue && result.Value)
-        //    {
-        //        StartWindow app = new StartWindow();
-        //        VM = new ApplicationViewModel();
-        //        app.DataContext = VM;
-        //        app.ShowDialog();
-        //    }
-        //}
+            try
+            {
+                bool? result = window.ShowDialog();
+                if (result.HasValue && result.Value)
+                {
+                    // Happy result, do not terminate the application
+                    VM.User = window.LoginResponse.Resource;
+                }
+                else
+                {
+                    Application.Current.Shutdown(-1);
+                }
+            }
+            catch(SpikeException err)
+            {
+                MessageBox.Show(err.Message + "\r\nAborting application");
+                Application.Current.Shutdown(-1);
+            }
+            catch (AggregateException ae)
+            {
+                MessageBox.Show("Fatal error. Aborting application");
+                Application.Current.Shutdown(-1);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message + "\r\nAborting application");
+                Application.Current.Shutdown(-1);
+            }
+
+        }
     }
 }

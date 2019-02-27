@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?define UpgradeCode = "395601D2-6D56-4D95-BB8C-AFC87FC03541"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+	<Product Id="*" Name="PhotoVis" Language="1033" Version="!(bind.FileVersion.PhotoVis.exe)" Manufacturer="VA Visjon" UpgradeCode="$(var.UpgradeCode)">
+		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+
+		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+		<MediaTemplate EmbedCab="yes" />
+
+    <PropertyRef Id="WIX_IS_NETFRAMEWORK_45_OR_LATER_INSTALLED"/>
+    <Condition Message="This application requires .NET Framework 4.5 or later installed.">
+      <![CDATA[Installed OR WIX_IS_NETFRAMEWORK_45_OR_LATER_INSTALLED]]>
+    </Condition>
+
+    <!--<Property Id="VERS" Value="$!(bind.FileVersion.PhotoVis.exe) />
+    <Property Id="PHOTOVISVERSION">
+      <RegistrySearch Id="PhotoVis" Root="HKLM" Key="Software\PhotoVis" Name="version" Type="raw"/>
+    </Property>
+
+    <Condition Message="This version of the application is already installed.">
+      <![CDATA[Installed OR (VERS = PHOTOVISVERSION)]]>
+    </Condition>-->
+
+    <!--<Property Id="OFFICEPATH">
+      <RegistrySearch Id="OfficeReg" Root="HKLM" Key="HKEY_CLASSES_ROOT\Access.Application\CurVer" Name="Gaffa" Type="raw" />
+    </Property>
+
+    <Condition Message="This application requires Microsoft Office. Please install Office then run this installer again.">
+      <![CDATA[Installed OR (OFFICEPATH)]]>
+    </Condition>-->
+    
+		<Feature Id="ProductFeature" Title="PhotoVisSetup" Level="1">
+			<ComponentGroupRef Id="ProductComponents" />
+      <ComponentRef Id="ApplicationShortcut" />
+		</Feature>
+
+    <WixVariable Id="WixUILicenseRtf" Value="$(var.ProjectDir)\Resources\License.rtf" />
+    <WixVariable Id="WixUIBannerBmp" Value="$(var.ProjectDir)\Resources\PhotoVisInstallerPoweredByVaVisjonTopBanner.bmp" />
+    <WixVariable Id="WixUIDialogBmp" Value="$(var.ProjectDir)\Resources\PhotoVisInstallerPoweredByVaVisjon.bmp" />
+
+    <UI>
+      <UIRef Id="WixUI_Minimal" />
+      <Publish Dialog="ExitDialog"
+        Control="Finish"
+        Event="DoAction"
+        Value="LaunchApplication">WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed</Publish>
+    </UI>
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch PhotoVis" />
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
+    <Property Id="WixShellExecTarget" Value="[#PhotoVis.exe]" />
+    <CustomAction Id="LaunchApplication" BinaryKey="WixCA" DllEntry="WixShellExec" Impersonate="yes" />
+    
+    <Icon Id="icon.ico" SourceFile="Resources\iconblue_256x256.ico"/>
+    <Property Id="ARPPRODUCTICON" Value="icon.ico" />
+
+  </Product>
+
+	<Fragment>
+		<Directory Id="TARGETDIR" Name="SourceDir">
+			<Directory Id="ProgramFilesFolder">
+				<Directory Id="INSTALLFOLDER" Name="PhotoVis" />
+			</Directory>
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="PhotoVis"/>
+      </Directory>
+		</Directory>
+	</Fragment>
+
+	<Fragment>
+		<ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+      <Component Id="VersionNumber" Guid="6FC4E982-4384-4318-927C-B85ABC3EF9B9">
+        <RegistryValue Root="HKLM" Key="SOFTWARE\VAVisjon\PhotoVis" Name="version" Type="string" Value="!(bind.FileVersion.PhotoVis.exe)"/>
+      </Component>
+      <Component Id="PhotoVis.exe" Guid="CBA74F79-AEF7-40BD-938D-1D8FBA8D457F">
+        <File Id="PhotoVis.exe" Source="..\PhotoVis\bin\Release\PhotoVis.exe" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="PhotoVis.exe.config" Guid="52CDF722-FE6A-4ABC-AF69-5FD39CF45E2C">
+        <File Id="PhotoVis.exe.config" Source="..\PhotoVis\bin\Release\PhotoVis.exe.config" KeyPath="yes"/>
+      </Component>
+      <Component Id="SpikeAccountManager.dll" Guid="AA4792EC-6245-4CE6-945E-3D43404204CE">
+        <File Id="SpikeAccountManager.dll" Source="..\PhotoVis\bin\Release\SpikeAccountManager.dll" KeyPath="yes"/>
+      </Component>
+      <Component Id="SpikeAccountManager.dll.config" Guid="C4276852-7FF4-4FE5-BFBE-FD34BF5FCAD7">
+        <File Id="SpikeAccountManager.dll.config" Source="..\PhotoVis\bin\Release\SpikeAccountManager.dll.config" KeyPath="yes"/>
+      </Component>
+      <Component Id="ClusterEngine.dll" Guid="BFD0EE16-4538-468F-8E9F-7169CD5D9709">
+        <File Id="ClusterEngine.dll" Source="..\PhotoVis\bin\Release\ClusterEngine.dll" KeyPath="yes"/>
+      </Component>
+      <Component Id="BingMapsCredentials.dll" Guid="EBE0CA75-6749-4A9E-99A1-DC23181D3951">
+        <File Id="BingMapsCredentials.dll" Source="..\PhotoVis\bin\Release\BingMapsCredentials.dll" KeyPath="yes"/>
+      </Component>
+      <Component Id="MetadataExtractor.dll" Guid="B58A69C7-BD4D-427A-815F-B12AD042624C">
+        <File Id="MetadataExtractor.dll" Source="..\PhotoVis\bin\Release\MetadataExtractor.dll" KeyPath="yes"/>
+      </Component>
+      <Component Id="Microsoft.Maps.MapControl.WPF.dll" Guid="09814078-C228-4746-A78F-2B24F2B8D904">
+        <File Id="Microsoft.Maps.MapControl.WPF.dll" Source="..\PhotoVis\bin\Release\Microsoft.Maps.MapControl.WPF.dll" KeyPath="yes"/>
+      </Component>
+      <Component Id="Microsoft.WindowsAPICodePack.dll" Guid="97F719A4-9F41-4AD7-B7FD-EB482AE9C0A5">
+        <File Id="Microsoft.WindowsAPICodePack.dll" Source="..\PhotoVis\bin\Release\Microsoft.WindowsAPICodePack.dll" KeyPath="yes"/>
+      </Component>
+      <Component Id="Microsoft.WindowsAPICodePack.Shell.dll" Guid="25970999-9E7B-45F3-BA19-AED1FBB7E9EC">
+        <File Id="Microsoft.WindowsAPICodePack.Shell.dll" Source="..\PhotoVis\bin\Release\Microsoft.WindowsAPICodePack.Shell.dll" KeyPath="yes"/>
+      </Component>
+      <Component Id="Newtonsoft.Json.dll" Guid="D1B07183-598C-4619-804D-CAD80F8B1157">
+        <File Id="Newtonsoft.Json.dll" Source="..\PhotoVis\bin\Release\Newtonsoft.Json.dll" KeyPath="yes"/>
+      </Component>
+      <Component Id="XmpCore.dll" Guid="BA5EC692-319D-4EBC-B381-C5A21D7EC1EC">
+        <File Id="XmpCore.dll" Source="..\PhotoVis\bin\Release\XmpCore.dll" KeyPath="yes"/>
+      </Component>
+      <Component Id="Manual.pdf" Guid="BFE7558E-1EAF-4E2F-AED1-CEFF37807856">
+        <File Id="Manual.pdf" Source="..\PhotoVis\bin\Release\Resources\Manual.pdf" KeyPath="yes"/>
+      </Component>
+		</ComponentGroup>
+	</Fragment>
+
+  <Fragment>
+    <DirectoryRef Id="ApplicationProgramsFolder">
+      <Component Id="ApplicationShortcut" Guid="857DD89E-3E48-4305-8A23-4DBC55F9C136">
+        <Shortcut Id="ApplicationStartMenuShortcut"
+                  Name="PhotoVis"
+                  Description="An imagery browsing application for viewing images on a map"
+                  Target="[#PhotoVis.exe]"
+                  WorkingDirectory="INSTALLFOLDER"/>
+        <RemoveFolder Id="CleanUpShortCut" Directory="ApplicationProgramsFolder" On="uninstall"/>
+        <RegistryValue Root="HKCU" Key="Software\Microsoft\PhotoVis" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+
+</Wix>

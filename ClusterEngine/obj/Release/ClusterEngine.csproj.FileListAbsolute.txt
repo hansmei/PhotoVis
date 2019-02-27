@@ -5,3 +5,11 @@ C:\dev\git\PhotoVis\ClusterEngine\bin\Release\Microsoft.Maps.MapControl.WPF.xml
 C:\dev\git\PhotoVis\ClusterEngine\obj\Release\ClusterEngine.csproj.CoreCompileInputs.cache
 C:\dev\git\PhotoVis\ClusterEngine\obj\Release\ClusterEngine.dll
 C:\dev\git\PhotoVis\ClusterEngine\obj\Release\ClusterEngine.pdb
+C:\git\PhotoVis\ClusterEngine\bin\Release\ClusterEngine.dll
+C:\git\PhotoVis\ClusterEngine\bin\Release\ClusterEngine.pdb
+C:\git\PhotoVis\ClusterEngine\bin\Release\Microsoft.Maps.MapControl.WPF.xml
+C:\git\PhotoVis\ClusterEngine\obj\Release\ClusterEngine.csprojAssemblyReference.cache
+C:\git\PhotoVis\ClusterEngine\obj\Release\ClusterEngine.csproj.CoreCompileInputs.cache
+C:\git\PhotoVis\ClusterEngine\obj\Release\ClusterEngine.csproj.CopyComplete
+C:\git\PhotoVis\ClusterEngine\obj\Release\ClusterEngine.dll
+C:\git\PhotoVis\ClusterEngine\obj\Release\ClusterEngine.pdb

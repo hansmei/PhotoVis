@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:m="clr-namespace:Microsoft.Maps.MapControl.WPF;assembly=Microsoft.Maps.MapControl.WPF"
         xmlns:vm="clr-namespace:PhotoVis.ViewModel"
-        xmlns:mod="clr-namespace:PhotoVis.Models"
+        xmlns:ctr="clr-namespace:PhotoVis.Controls"
         xmlns:v="clr-namespace:PhotoVis.Views"
         xmlns:local="clr-namespace:PhotoVis"
         mc:Ignorable="d"
@@ -30,25 +30,60 @@
         </DataTemplate>
     </Window.Resources>
 
-    <DockPanel LastChildFill="True" Background="#ff555555">
+    <DockPanel LastChildFill="True">
+        <Menu Width="Auto" Height="20" DockPanel.Dock="Top">
+            <MenuItem Header="_File">
+                <MenuItem Header="Bing map key" Click="BingMap_Click" />
+                <Separator />
+                <MenuItem Header="Exit" Click="Exit_Click" />
+            </MenuItem>
+            <MenuItem Header="_About">
+                <MenuItem Header="Licenses" Click="Licenses_Click" />
+            </MenuItem>
+            <MenuItem Header="_Help">
+                <MenuItem Header="User manual" Click="UserManual_Click" />
+            </MenuItem>
+        </Menu>
         <Border DockPanel.Dock="Top">
-            <ItemsControl ItemsSource="{Binding PageViewModels}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Button Width="100" Height="50" 
-                            Content="{Binding Name}"
-                            Command="{Binding DataContext.ChangePageCommand,
-                                RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
-                            CommandParameter="{Binding }"
-                            />
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <StackPanel Orientation="Horizontal"/>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-            </ItemsControl>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="200" />
+                    <ColumnDefinition Width="200" />
+                </Grid.ColumnDefinitions>
+                <ItemsControl Grid.Column="0" ItemsSource="{Binding PageViewModels}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Width="100" Height="50" 
+                                Content="{Binding Name}"
+                                Command="{Binding DataContext.ChangePageCommand,
+                                    RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                CommandParameter="{Binding }"
+                                />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+                <StackPanel Grid.Column="1" Margin="5" VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <TextBlock Text="{Binding UserDisplayName}" Style="{StaticResource TextLight}" TextWrapping="Wrap" />
+                </StackPanel>
+                <StackPanel Grid.Column="2" Margin="5">
+                    <TextBlock Text="Powered by" FontStyle="Italic" />
+                    <Button Style="{StaticResource ImageButton}" 
+                        ctr:ImageButton.Image="{StaticResource PoweredByLogo}"
+                        ctr:ImageButton.Stretch="Uniform"
+                        Click="PoweredByButton_Click"
+                        BorderThickness="0"
+                        Margin="2"
+                        x:Name="PoweredByButton" Width="190" Height="25"
+                        HorizontalAlignment="Right">
+                    </Button>
+                </StackPanel>
+            </Grid>
         </Border>
 
         <!-- Content Area -->

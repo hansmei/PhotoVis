@@ -53,6 +53,13 @@ namespace PhotoVis.Data
             }
         }
 
+        public bool Exists
+        {
+            get
+            {
+                return File.Exists(this.ImagePath);
+            }
+        }
 
         public string ThumbnailGuid
         {

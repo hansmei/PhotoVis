@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
 using PhotoVis.Models;
+using SpikeAccountManager;
 
 namespace PhotoVis.ViewModel
 {
@@ -15,6 +16,7 @@ namespace PhotoVis.ViewModel
 
         private IPageViewModel _currentPageViewModel;
         private List<IPageViewModel> _pageViewModels;
+        private User _user;
 
         #endregion
 
@@ -45,20 +47,34 @@ namespace PhotoVis.ViewModel
             }
         }
 
+        public User User
+        {
+            get
+            {
+                return _user;
+            }
+            set
+            {
+                this._user = value;
+                OnPropertyChanged("User");
+                OnPropertyChanged("UserDisplayName");
+            }
+        }
 
-        //public ICommand HomePageCommand
-        //{
-        //    get
-        //    {
-        //        if (_homePageCommand == null)
-        //        {
-        //            _homePageCommand = new RelayCommand(
-        //                p => GoToHomePage());
-        //        }
-
-        //        return _homePageCommand;
-        //    }
-        //}
+        public string UserDisplayName
+        {
+            get
+            {
+                if(this.User != null)
+                {
+                    return "Welcome " + this.User.FirstName + " " + this.User.LastName;
+                }
+                else
+                {
+                    return "";
+                }
+            }
+        }
 
         public List<IPageViewModel> PageViewModels
         {
@@ -107,6 +123,11 @@ namespace PhotoVis.ViewModel
             }
         }
 
+
+        public void OpenProjectsView()
+        {
+            CurrentPageViewModel = PageViewModels[0];
+        }
 
         public void OpenEditView(ProjectModel model)
         {

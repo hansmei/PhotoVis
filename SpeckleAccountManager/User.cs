@@ -5,7 +5,8 @@ using Newtonsoft.Json;
 
 namespace SpikeAccountManager
 {/// <summary>Describes a user.</summary>
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.41.0 (Newtonsoft.Json v9.0.0.0)")]
+    //[System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.41.0 (Newtonsoft.Json v9.0.0.0)")]
+    //[System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.0.0.0 (Newtonsoft.Json v10.0.0.0)")]
     [Serializable]
     public partial class User
     {

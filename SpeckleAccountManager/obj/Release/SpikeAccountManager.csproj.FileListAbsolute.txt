@@ -1,0 +1,15 @@
+C:\git\PhotoVis\SpeckleAccountManager\bin\Release\SpikeAccountManager.dll.config
+C:\git\PhotoVis\SpeckleAccountManager\bin\Release\SpikeAccountManager.dll
+C:\git\PhotoVis\SpeckleAccountManager\bin\Release\SpikeAccountManager.pdb
+C:\git\PhotoVis\SpeckleAccountManager\bin\Release\Newtonsoft.Json.dll
+C:\git\PhotoVis\SpeckleAccountManager\obj\Release\SpikeAccountManager.csprojAssemblyReference.cache
+C:\git\PhotoVis\SpeckleAccountManager\obj\Release\AccountWindow.g.cs
+C:\git\PhotoVis\SpeckleAccountManager\obj\Release\SpikeAccountManager_MarkupCompile.cache
+C:\git\PhotoVis\SpeckleAccountManager\obj\Release\AccountWindow.baml
+C:\git\PhotoVis\SpeckleAccountManager\obj\Release\SpikeAccountManager.g.resources
+C:\git\PhotoVis\SpeckleAccountManager\obj\Release\SpikeAccountManager.Properties.Resources.resources
+C:\git\PhotoVis\SpeckleAccountManager\obj\Release\SpikeAccountManager.csproj.GenerateResource.cache
+C:\git\PhotoVis\SpeckleAccountManager\obj\Release\SpikeAccountManager.csproj.CoreCompileInputs.cache
+C:\git\PhotoVis\SpeckleAccountManager\obj\Release\SpikeAccountManager.csproj.CopyComplete
+C:\git\PhotoVis\SpeckleAccountManager\obj\Release\SpikeAccountManager.dll
+C:\git\PhotoVis\SpeckleAccountManager\obj\Release\SpikeAccountManager.pdb

@@ -1,0 +1,2 @@
+C:\git\PhotoVis\PhotoVisSetup\bin\Debug\PhotoVisSetup.msi
+C:\git\PhotoVis\PhotoVisSetup\bin\Debug\PhotoVisSetup.wixpdb

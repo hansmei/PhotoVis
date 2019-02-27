@@ -4,7 +4,7 @@
 library
 C#
 .cs
-C:\dev\git\PhotoVis\SpeckleAccountManager\obj\Debug\
+C:\git\PhotoVis\SpeckleAccountManager\obj\Debug\
 SpikeAccountManager
 none
 false
@@ -12,9 +12,9 @@ DEBUG;TRACE
 
 1-1425825795
 
-171890275552
-19-1311026010
+19691427350
+19243316502
 AccountWindow.xaml;
 
-True
+False
 

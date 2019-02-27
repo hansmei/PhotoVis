@@ -52,6 +52,12 @@ namespace PhotoVis.Helpers
 
             TimeSpan distanceFromStart = image.TimeImageTaken.Subtract(_lowerAge);
             double percent = distanceFromStart.TotalDays / numDaysInSpan;
+
+            // Clamp to 0-1 span
+            if (percent > 1)
+                percent = 1;
+            else if (percent < 0)
+                percent = 0;
             return percent;
         }
 

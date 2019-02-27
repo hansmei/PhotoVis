@@ -17,7 +17,7 @@ namespace PhotoVis.Util
 {
     class AssignmentIndexer
     {
-        public static Tuple<int, int> LoadImagesFromDatabase(int projectId)
+        public static Tuple<int, int, int> LoadImagesFromDatabase(int projectId)
         {
             // First get an array of all existing paths for this project
             Dictionary<string, object> whereArray = new Dictionary<string, object>();
@@ -60,7 +60,11 @@ namespace PhotoVis.Util
                 }
             }
 
-            return new Tuple<int, int>(App.MapVM.ImageLocations.Count, App.MapVM.UnassignedImageLocations.Count);
+            return new Tuple<int, int, int>(
+                App.MapVM.ImageLocations.Count,
+                App.MapVM.UnassignedImageLocations.Count,
+                App.MapVM.ImageLocations.ErasedImages.Count + App.MapVM.UnassignedImageLocations.ErasedImages.Count
+                );
         }
 
         public static HashSet<string> GetUniquePathNames()

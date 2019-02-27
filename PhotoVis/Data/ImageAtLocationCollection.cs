@@ -12,6 +12,8 @@ namespace PhotoVis.Data
         private int projectId;
         private List<ImageAtLocation> images = new List<ImageAtLocation>();
 
+        public List<ImageAtLocation> ErasedImages = new List<ImageAtLocation>();
+
         public int Count
         {
             get
@@ -31,14 +33,31 @@ namespace PhotoVis.Data
 
         public void Add(ImageAtLocation entity)
         {
-            this.images.Add(entity);
-            this.Sort();
-            this.TriggerCollectionChanged(false);
+            if (entity.Exists)
+            {
+                this.images.Add(entity);
+                this.Sort();
+                this.TriggerCollectionChanged(false);
+            }
+            else
+            {
+                this.ErasedImages.Add(entity);
+            }
         }
 
         public void AddRange(List<ImageAtLocation> ents)
         {
-            this.images.AddRange(ents);
+            foreach(ImageAtLocation img in ents)
+            {
+                if (img.Exists)
+                {
+                    this.images.Add(img);
+                }
+                else
+                {
+                    this.ErasedImages.Add(img);
+                }
+            }
             this.Sort();
             this.TriggerCollectionChanged(false);
         }

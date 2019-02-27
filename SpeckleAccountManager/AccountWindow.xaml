@@ -3,73 +3,70 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:SpikeAccountManager"
-        xmlns:local1="clr-namespace:SpikeAccountManager;assembly=SpikeAccountManager" x:Class="SpikeAccountManager.AccountWindow"
+        x:Class="SpikeAccountManager.AccountWindow"
         mc:Ignorable="d"
-        Title="MainWindow" Height="459.472" Width="429.532" AllowsTransparency="True" WindowStyle="None" Background="Transparent">
-  <Window.Effect>
-    <DropShadowEffect BlurRadius="22"/>
-  </Window.Effect>
-  <Grid>
-    <Grid.ColumnDefinitions>
-      <ColumnDefinition Width="18*"/>
-      <ColumnDefinition Width="123*"/>
-      <ColumnDefinition Width="74*"/>
-    </Grid.ColumnDefinitions>
-    <Rectangle x:Name="DragRectangle" HorizontalAlignment="Left" Height="460" VerticalAlignment="Top" Width="430" Stroke="White" StrokeThickness="0" Fill="#FF0057FF" Margin="0,0,-0.5,-0.5" Grid.ColumnSpan="3"/>
-    <TabControl HorizontalAlignment="Left" Height="352" Margin="21,87,0,0" VerticalAlignment="Top" TabStripPlacement="Top" Width="385" Grid.ColumnSpan="3">
-      <!--<TabItem Header="Existing Accounts">
-        <Grid Background="White">
-          <Button x:Name="ButonUseSelected" Content="Use Selected" HorizontalAlignment="Left" Margin="290,273,0,0" VerticalAlignment="Top" Width="76" Click="ButonUseSelected_Click"/>
+        Title="Spike Account Manager" Height="496" Width="429" AllowsTransparency="True" WindowStyle="None" Background="Transparent">
+    <Window.Resources>
+        <ResourceDictionary>
+            <BitmapImage x:Key="Logo32px" UriSource="./Resources/logo32px.png" />
+        </ResourceDictionary>
+    </Window.Resources>
+    <Window.Effect>
+        <DropShadowEffect BlurRadius="22"/>
+    </Window.Effect>
+    <Border BorderThickness="1px" BorderBrush="Black">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="18*"/>
+                <ColumnDefinition Width="123*"/>
+                <ColumnDefinition Width="74*"/>
+            </Grid.ColumnDefinitions>
+            <Rectangle x:Name="DragRectangle" HorizontalAlignment="Left" Height="496" VerticalAlignment="Top" Width="430" Stroke="White" StrokeThickness="0" Fill="#FF444444" Margin="0,0,-3,-39" Grid.ColumnSpan="3"/>
+            <TabControl x:Name="LoginRegisterTab" HorizontalAlignment="Left" Height="386" Margin="21,87,0,-16" VerticalAlignment="Top" TabStripPlacement="Top" Width="385" Grid.ColumnSpan="3">
+                <TabItem Header="Login">
+                    <Grid Background="White">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="69*"/>
+                            <ColumnDefinition Width="311*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox x:Name="LoginEmail" HorizontalAlignment="Left" Height="24" Margin="44.2,83,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="182" Grid.Column="1"/>
+                        <PasswordBox x:Name="LoginPassword" HorizontalAlignment="Left" KeyDown="LoginPassword_KeyDown" Margin="44.2,126,0,0" VerticalAlignment="Top" Width="182" Height="24" Grid.Column="1"/>
+                        <Label Content="Email/username" HorizontalAlignment="Left" Margin="8,83,0,0" VerticalAlignment="Top" FontSize="12" Height="24" Grid.ColumnSpan="2"/>
+                        <Label Content="Password" HorizontalAlignment="Left" Margin="8,126,0,0" VerticalAlignment="Top" FontSize="12" Height="24"/>
+                        <Button x:Name="LoginButton" Content="Login" HorizontalAlignment="Left" Margin="248.2,126,0,0" VerticalAlignment="Top" Width="52" Click="LoginButton_Click" Height="24" Grid.Column="1" />
+                        <Label Content="Login into your existing account." HorizontalAlignment="Left" Margin="10,6,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
+                        <TextBlock x:Name="ErrorMessageLogin" Text="" TextWrapping="Wrap" HorizontalAlignment="Left" Margin="10,180,0,0" VerticalAlignment="Top" FontSize="12" Height="98" Foreground="Red" Grid.ColumnSpan="2" Width="359"/>
 
-
-          <ListBox ItemsSource="{Binding}" MouseDoubleClick="AccountListBox_MouseDoubleClick" x:Name="AccountListBox" HorizontalAlignment="Left" Height="283" Margin="10,10,0,0" VerticalAlignment="Top" Width="245">
-            <ListBox.ItemTemplate>
-              <DataTemplate>
-                <StackPanel>
-                  <TextBlock Text="{Binding restApi}" FontSize="14"/>
-                  <TextBlock Text="{Binding email}" FontSize="10" Foreground="DimGray"/>
-                  <TextBlock Text="-" FontSize="10" Foreground="DimGray"/>
-                  <TextBlock Text="{Binding serverName}" FontSize="10" Foreground="DimGray"/>
-                </StackPanel>
-              </DataTemplate>
-            </ListBox.ItemTemplate>
-          </ListBox>
-          <Label Content="Existing Speckle&#xD;&#xA;accounts on&#xD;&#xA;this computer." HorizontalAlignment="Left" Margin="270,10,0,0" VerticalAlignment="Top" Height="65" Width="96"/>
+                        <TextBlock Margin="44,155,84,184" Grid.Column="1">           
+                            <Hyperlink Foreground="#ff005e9e" NavigateUri="https://vavisjon.no/innsikt/index.php?dir=general&amp;file=forgotpassword" RequestNavigate="Hyperlink_RequestNavigate">
+                                Forgot your password?
+                            </Hyperlink>
+                        </TextBlock>
+                    </Grid>
+                </TabItem>
+                <TabItem Header="Register">
+                    <Grid Background="White">
+                        <TextBox x:Name="RegisterEmail" HorizontalAlignment="Left" Height="24" Margin="78,54,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="182"/>
+                        <Label Content="Email" HorizontalAlignment="Left" Margin="8,54,0,0" VerticalAlignment="Top" FontSize="12" Height="24"/>
+                        <TextBox x:Name="RegisterFirstname" HorizontalAlignment="Left" Height="24" Margin="78,94,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="182"/>
+                        <Label Content="First name" HorizontalAlignment="Left" Margin="8,94,0,0" VerticalAlignment="Top" FontSize="12" Height="24"/>
+                        <TextBox x:Name="RegisterLastname" HorizontalAlignment="Left" Height="24" Margin="78,134,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="182"/>
+                        <Label Content="Last name" HorizontalAlignment="Left" Margin="8,134,0,0" VerticalAlignment="Top" FontSize="12" Height="24"/>
+                        <TextBox x:Name="RegisterCompany" HorizontalAlignment="Left" Height="24" Margin="78,174,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="182"/>
+                        <Label Content="Company" HorizontalAlignment="Left" Margin="8,174,0,0" VerticalAlignment="Top" FontSize="12" Height="24"/>
+                        <PasswordBox x:Name="RegisterPassword" HorizontalAlignment="Left" Margin="78,214,0,0" VerticalAlignment="Top" Width="182" Height="24"/>
+                        <PasswordBox x:Name="RegisterPasswordConfirm" HorizontalAlignment="Left" Margin="78,254,0,0" VerticalAlignment="Top" Width="182" Height="22"/>
+                        <Label Content="Password" HorizontalAlignment="Left" Margin="8,214,0,0" VerticalAlignment="Top" FontSize="12" Height="24"/>
+                        <Label Content="Confirm" HorizontalAlignment="Left" Margin="8,254,0,0" VerticalAlignment="Top" FontSize="12" Height="24" Width="68"/>
+                        <Button x:Name="RegisterButton" Content="Register" HorizontalAlignment="Left" Margin="291,254,0,0" VerticalAlignment="Top" Width="78" Click="RegisterButton_Click" Height="22"/>
+                        <Label Content="Create a new account!" HorizontalAlignment="Left" Margin="10,6,0,0" VerticalAlignment="Top"/>
+                        <TextBlock x:Name="ErrorMessageRegister" Text="" TextWrapping="Wrap" HorizontalAlignment="Left" Margin="10,284,0,0" VerticalAlignment="Top" FontSize="12" Height="64" Foreground="Red" Width="360"/>
+                    </Grid>
+                </TabItem>
+            </TabControl>
+            <TextBlock HorizontalAlignment="Left" Margin="30,15,0,0" TextWrapping="Wrap" Text="VA Visjon Account" VerticalAlignment="Top" Height="29" Width="228" FontSize="24" Foreground="White" Grid.ColumnSpan="2" Grid.Column="1"/>
+            <Button x:Name="CancelButton" Content="Exit" HorizontalAlignment="Left" Margin="63,10,0,0" VerticalAlignment="Top" Width="75" Click="CancelButton_Click" Grid.Column="2"/>
+            <Image HorizontalAlignment="Left" Height="32" Margin="21,15,0,0" VerticalAlignment="Top" Width="32" Grid.ColumnSpan="2" Source="{Binding Mode=OneWay, Source={StaticResource Logo32px}}"/>
         </Grid>
-            </TabItem>-->
-            <TabItem Header="Login">
-                <Grid Background="White">
-                    <!--<TextBox x:Name="LoginServerUrl" HorizontalAlignment="Left" Height="23" Margin="78,41,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="182"/>
-                    <Label Content="Server Url" HorizontalAlignment="Left" Margin="8,41,0,0" VerticalAlignment="Top" FontSize="8" FontWeight="Bold" Height="23"/>-->
-                    <TextBox x:Name="LoginEmail" HorizontalAlignment="Left" Height="24" Margin="78,83,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="182"/>
-                    <PasswordBox x:Name="LoginPassword" HorizontalAlignment="Left" Margin="78,126,0,0" VerticalAlignment="Top" Width="182" Height="24"/>
-                    <Label Content="Email" HorizontalAlignment="Left" Margin="8,83,0,0" VerticalAlignment="Top" FontSize="8" FontWeight="Bold" Height="24"/>
-                    <Label Content="Password" HorizontalAlignment="Left" Margin="8,126,0,0" VerticalAlignment="Top" FontSize="8" FontWeight="Bold" Height="24"/>
-                    <Button x:Name="LoginButton" Content="Login" HorizontalAlignment="Left" Margin="293,130,0,0" VerticalAlignment="Top" Width="76" Click="LoginButton_Click" />
-                    <Label Content="Login into an existing account." HorizontalAlignment="Left" Margin="10,6,0,0" VerticalAlignment="Top"/>
-                </Grid>
-            </TabItem>
-            <TabItem Header="Register">
-        <Grid Background="White">
-          <!--<TextBox x:Name="RegisterServerUrl" HorizontalAlignment="Left" Height="23" Margin="78,41,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="182"/>
-          <Label Content="Server Url" HorizontalAlignment="Left" Margin="8,41,0,0" VerticalAlignment="Top" FontSize="8" FontWeight="Bold" Height="23"/>-->
-          <TextBox x:Name="RegisterEmail" HorizontalAlignment="Left" Height="24" Margin="78,83,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="182"/>
-          <Label Content="Email" HorizontalAlignment="Left" Margin="8,83,0,0" VerticalAlignment="Top" FontSize="8" FontWeight="Bold" Height="24"/>
-          <TextBox x:Name="RegisterFirstname" HorizontalAlignment="Left" Height="24" Margin="78,126,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="182"/>
-          <Label Content="First name" HorizontalAlignment="Left" Margin="8,126,0,0" VerticalAlignment="Top" FontSize="8" FontWeight="Bold" Height="24"/>
-          <TextBox x:Name="RegisterLastname" HorizontalAlignment="Left" Height="24" Margin="78,169,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="182"/>
-          <Label Content="Last name" HorizontalAlignment="Left" Margin="8,169,0,0" VerticalAlignment="Top" FontSize="8" FontWeight="Bold" Height="24"/>
-          <PasswordBox x:Name="RegisterPassword" HorizontalAlignment="Left" Margin="78,212,0,0" VerticalAlignment="Top" Width="182" Height="24"/>
-          <PasswordBox x:Name="RegisterPasswordConfirm" HorizontalAlignment="Left" Margin="78,255,0,0" VerticalAlignment="Top" Width="182" Height="22"/>
-          <Label Content="Password" HorizontalAlignment="Left" Margin="8,212,0,0" VerticalAlignment="Top" FontSize="8" FontWeight="Bold" Height="24"/>
-          <Label Content="Confirm" HorizontalAlignment="Left" Margin="8,255,0,0" VerticalAlignment="Top" FontSize="8" FontWeight="Bold" Height="24" Width="68"/>
-          <Button x:Name="RegisterButton" Content="Register" HorizontalAlignment="Left" Margin="288,259,0,0" VerticalAlignment="Top" Width="76" Click="RegisterButton_Click"/>
-          <Label Content="Create a new account!" HorizontalAlignment="Left" Margin="10,6,0,0" VerticalAlignment="Top"/>
-        </Grid>
-      </TabItem>
-    </TabControl>
-    <TextBlock HorizontalAlignment="Left" Margin="23,15,0,0" TextWrapping="Wrap" Text="Spike" VerticalAlignment="Top" Height="29" Width="120" FontSize="24" Foreground="White" Grid.ColumnSpan="2"/>
-    <Button x:Name="CancelButton" Content="Cancel" HorizontalAlignment="Left" Margin="49,24,0,0" VerticalAlignment="Top" Width="75" Click="CancelButton_Click" Grid.Column="2"/>
-  </Grid>
+    </Border>
 </Window>

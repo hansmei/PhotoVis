@@ -245,7 +245,8 @@ namespace PhotoVis.ViewModel
 
         private void DeleteProject(ProjectModel model)
         {
-
+            _currentProject.Delete();
+            App.VM.OpenProjectsView();
         }
 
         private void AddFolder()
