@@ -293,58 +293,61 @@ namespace PhotoVis.ViewModel
 
             foreach (ImageFoldersModel folderModel in model.ProjectFolders)
             {
-                // Get all folders subdirectories
-                SearchOption method = folderModel.IncludeSubfolders ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
-                ImageIndexerTransporter ps = new ImageIndexerTransporter(model.ProjectId, folderModel.FolderPath);
-                
-                BackgroundWorker _worker = new BackgroundWorker();
-                _worker.DoWork += (s, a) =>
+                if (Directory.Exists(folderModel.FolderPath))
                 {
-                    ImageIndexerTransporter p = (ImageIndexerTransporter)a.Argument;
-                    
-                    List<string> allDirectories = FileHelper.GetDirectories(ps.FolderPath, searchOption: method);
-                    allDirectories.Add(ps.FolderPath); // Make sure we add the current folder to the query
+                    // Get all folders subdirectories
+                    SearchOption method = folderModel.IncludeSubfolders ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
+                    ImageIndexerTransporter ps = new ImageIndexerTransporter(model.ProjectId, folderModel.FolderPath);
 
-                    // Start async tasks for each subdirectory to index its contents
-                    List<ImageAtLocation> images = new List<ImageAtLocation>();
-                    foreach (string folder in allDirectories)
+                    BackgroundWorker _worker = new BackgroundWorker();
+                    _worker.DoWork += (s, a) =>
                     {
-                        ImageIndexerTransporter transport = new ImageIndexerTransporter(p.ProjectId, folder);
-                        List<ImageAtLocation> tmp = AssignmentIndexer.IndexImages(transport, SearchOption.TopDirectoryOnly);
-                        images.AddRange(tmp);
-                        StatusText += string.Format("Indexed folder {0}.\r\n", folder);
-                    }
+                        ImageIndexerTransporter p = (ImageIndexerTransporter)a.Argument;
 
-                    p.SetImages(images);
-                    a.Result = p;
-                };
-                _worker.RunWorkerCompleted += (s, a) =>
-                {
-                    ImageIndexerTransporter p = (ImageIndexerTransporter)a.Result;
+                        List<string> allDirectories = FileHelper.GetDirectories(ps.FolderPath, searchOption: method);
+                        allDirectories.Add(ps.FolderPath); // Make sure we add the current folder to the query
 
-                    // Write to time last indexed
-                    Dictionary<string, object> where = new Dictionary<string, object>();
-                    where.Add(DAssignment.ProjectId, p.ProjectId);
+                        // Start async tasks for each subdirectory to index its contents
+                        List<ImageAtLocation> images = new List<ImageAtLocation>();
+                        foreach (string folder in allDirectories)
+                        {
+                            ImageIndexerTransporter transport = new ImageIndexerTransporter(p.ProjectId, folder);
+                            List<ImageAtLocation> tmp = AssignmentIndexer.IndexImages(transport, SearchOption.TopDirectoryOnly);
+                            images.AddRange(tmp);
+                            StatusText += string.Format("Indexed folder {0}.\r\n", folder);
+                        }
 
-                    Dictionary<string, object> update = new Dictionary<string, object>();
-                    update.Add(DAssignment.TimeLastIndexed, DateTime.Now.ToString(App.RegionalCulture));
-                    int numAffected = App.DB.UpdateValue(DTables.Assignments, where, update);
+                        p.SetImages(images);
+                        a.Result = p;
+                    };
+                    _worker.RunWorkerCompleted += (s, a) =>
+                    {
+                        ImageIndexerTransporter p = (ImageIndexerTransporter)a.Result;
 
-                    StatusText += string.Format("Completed all subfolders of {0}.\r\n", p.FolderPath);
-                    StatusText += string.Format("To get an overview of all images without GPS coordinates, re-open this project.");
+                        // Write to time last indexed
+                        Dictionary<string, object> where = new Dictionary<string, object>();
+                        where.Add(DAssignment.ProjectId, p.ProjectId);
 
-                    App.MapVM.ImageLocations.SetProjectId(p.ProjectId);
+                        Dictionary<string, object> update = new Dictionary<string, object>();
+                        update.Add(DAssignment.TimeLastIndexed, DateTime.Now.ToString(App.RegionalCulture));
+                        int numAffected = App.DB.UpdateValue(DTables.Assignments, where, update);
 
-                    // Extract valid and invalid locations
-                    List<ImageAtLocation> unknownLocations = new List<ImageAtLocation>();
-                    List<ImageAtLocation> validLocation = AssignmentIndexer.ExtractValidLocations(p.Images, out unknownLocations);
-                    App.MapVM.ImageLocations.AddRange(validLocation);
-                    //App.MapVM.UnassignedImageLocations.AddRange(unknownLocations);
+                        StatusText += string.Format("Completed all subfolders of {0}.\r\n", p.FolderPath);
+                        StatusText += string.Format("To get an overview of all images without GPS coordinates, re-open this project.");
 
-                    this.ApplyImageFilters();
-                    this.OverlayLoadMessage = "";
-                };
-                _worker.RunWorkerAsync(ps);
+                        App.MapVM.ImageLocations.SetProjectId(p.ProjectId);
+
+                        // Extract valid and invalid locations
+                        List<ImageAtLocation> unknownLocations = new List<ImageAtLocation>();
+                        List<ImageAtLocation> validLocation = AssignmentIndexer.ExtractValidLocations(p.Images, out unknownLocations);
+                        App.MapVM.ImageLocations.AddRange(validLocation);
+                        //App.MapVM.UnassignedImageLocations.AddRange(unknownLocations);
+
+                        this.ApplyImageFilters();
+                        this.OverlayLoadMessage = "";
+                    };
+                    _worker.RunWorkerAsync(ps);
+                }
             }
         }
 

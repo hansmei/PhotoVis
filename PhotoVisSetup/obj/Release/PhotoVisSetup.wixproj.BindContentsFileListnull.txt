@@ -1,8 +1,8 @@
+..\PhotoVis\bin\Release\BingMapsCredentials.dll
 ..\PhotoVis\bin\Release\ClusterEngine.dll
+..\PhotoVis\bin\Release\Resources\Manual.pdf
 ..\PhotoVis\bin\Release\MetadataExtractor.dll
-..\PhotoVis\bin\Release\MetadataExtractor.xml
 ..\PhotoVis\bin\Release\Microsoft.Maps.MapControl.WPF.dll
-..\PhotoVis\bin\Release\Microsoft.Maps.MapControl.WPF.xml
 ..\PhotoVis\bin\Release\Microsoft.WindowsAPICodePack.dll
 ..\PhotoVis\bin\Release\Microsoft.WindowsAPICodePack.Shell.dll
 ..\PhotoVis\bin\Release\Newtonsoft.Json.dll
@@ -11,4 +11,3 @@
 ..\PhotoVis\bin\Release\SpikeAccountManager.dll
 ..\PhotoVis\bin\Release\SpikeAccountManager.dll.config
 ..\PhotoVis\bin\Release\XmpCore.dll
-..\PhotoVis\bin\Release\XmpCore.xml
