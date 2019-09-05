@@ -16,19 +16,26 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <TargetFrameworkProfile />
-    <IsWebBootstrapper>false</IsWebBootstrapper>
-    <PublishUrl>publish\</PublishUrl>
+    <IsWebBootstrapper>true</IsWebBootstrapper>
+    <PublishUrl>ftp://vavisjon.no/</PublishUrl>
     <Install>true</Install>
-    <InstallFrom>Disk</InstallFrom>
-    <UpdateEnabled>false</UpdateEnabled>
+    <InstallFrom>Web</InstallFrom>
+    <UpdateEnabled>true</UpdateEnabled>
     <UpdateMode>Foreground</UpdateMode>
     <UpdateInterval>7</UpdateInterval>
     <UpdateIntervalUnits>Days</UpdateIntervalUnits>
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>2</ApplicationRevision>
-    <ApplicationVersion>0.6.0.%2a</ApplicationVersion>
+    <InstallUrl>http://vavisjon.no/innsikt/bin/PhotoVis/</InstallUrl>
+    <TargetCulture>en-US</TargetCulture>
+    <ProductName>PhotoVis</ProductName>
+    <PublisherName>VA Visjon</PublisherName>
+    <MinimumRequiredVersion>1.0.1.0</MinimumRequiredVersion>
+    <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
+    <WebPage>publish.htm</WebPage>
+    <ApplicationRevision>3</ApplicationRevision>
+    <ApplicationVersion>1.0.1.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
@@ -56,16 +63,29 @@
     <ApplicationIcon>iconblue_256x256.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>9C9C2FF6AD350CF9F7E92F9D713B7DE93557EF4A</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>5E96C25D8FE030B09103F623CCD4A84CF6CC21E3</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>PhotoVis_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>PhotoVis_SignKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateManifests>true</GenerateManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <SignManifests>true</SignManifests>
+    <SignManifests>false</SignManifests>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
+  </PropertyGroup>
+  <PropertyGroup>
+    <TargetZone>Internet</TargetZone>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="MetadataExtractor, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -222,7 +242,7 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </Resource>
     <None Include="packages.config" />
-    <None Include="PhotoVis_TemporaryKey.pfx" />
+    <None Include="Properties\app.manifest" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -235,6 +255,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\SpikeAccountManager\SpikeAccountManager.csproj">
+      <Project>{d65594c8-ea2e-46ca-a756-b1634edc3ae3}</Project>
+      <Name>SpikeAccountManager</Name>
+    </ProjectReference>
     <ProjectReference Include="..\BingMapsCredentials\BingMapsCredentials.csproj">
       <Project>{7d5304f9-6864-4e33-b9a2-78597bb86f8e}</Project>
       <Name>BingMapsCredentials</Name>
@@ -242,10 +266,6 @@
     <ProjectReference Include="..\ClusterEngine\ClusterEngine.csproj">
       <Project>{f262edf2-70a5-42f8-b18d-70830d0bf82d}</Project>
       <Name>ClusterEngine</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\SpeckleAccountManager\SpikeAccountManager.csproj">
-      <Project>{d65594c8-ea2e-46ca-a756-b1634edc3ae3}</Project>
-      <Name>SpikeAccountManager</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -285,9 +305,9 @@
     </Resource>
   </ItemGroup>
   <ItemGroup>
-    <BootstrapperPackage Include=".NETFramework,Version=v4.7.2">
+    <BootstrapperPackage Include=".NETFramework,Version=v4.6.1">
       <Visible>False</Visible>
-      <ProductName>Microsoft .NET Framework 4.7.2 %28x86 and x64%29</ProductName>
+      <ProductName>Microsoft .NET Framework 4.6.1 %28x86 and x64%29</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
     <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">

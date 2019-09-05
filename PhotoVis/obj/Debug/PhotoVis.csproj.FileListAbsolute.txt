@@ -134,3 +134,13 @@ C:\git\PhotoVis\PhotoVis\bin\Debug\Resources\Manual.pdf
 C:\git\PhotoVis\PhotoVis\bin\Debug\Microsoft.Maps.MapControl.WPF.dll
 C:\git\PhotoVis\PhotoVis\obj\Debug\Views\LicenseView.g.cs
 C:\git\PhotoVis\PhotoVis\obj\Debug\Views\LicenseView.baml
+C:\git\PhotoVis\PhotoVis\obj\Debug\PhotoVis.TrustInfo.xml
+C:\git\PhotoVis\PhotoVis\bin\Debug\Microsoft.IdentityModel.Tokens.dll
+C:\git\PhotoVis\PhotoVis\bin\Debug\System.IdentityModel.Tokens.Jwt.dll
+C:\git\PhotoVis\PhotoVis\bin\Debug\Microsoft.IdentityModel.Logging.dll
+C:\git\PhotoVis\PhotoVis\bin\Debug\Microsoft.IdentityModel.JsonWebTokens.dll
+C:\git\PhotoVis\PhotoVis\bin\Debug\Newtonsoft.Json.xml
+C:\git\PhotoVis\PhotoVis\bin\Debug\Microsoft.IdentityModel.Tokens.xml
+C:\git\PhotoVis\PhotoVis\bin\Debug\System.IdentityModel.Tokens.Jwt.xml
+C:\git\PhotoVis\PhotoVis\bin\Debug\Microsoft.IdentityModel.Logging.xml
+C:\git\PhotoVis\PhotoVis\bin\Debug\Microsoft.IdentityModel.JsonWebTokens.xml

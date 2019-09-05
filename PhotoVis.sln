@@ -10,11 +10,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhotoVis", "PhotoVis\PhotoV
 		{D65594C8-EA2E-46CA-A756-B1634EDC3AE3} = {D65594C8-EA2E-46CA-A756-B1634EDC3AE3}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpikeAccountManager", "SpeckleAccountManager\SpikeAccountManager.csproj", "{D65594C8-EA2E-46CA-A756-B1634EDC3AE3}"
-EndProject
 Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "PhotoVisSetup", "PhotoVisSetup\PhotoVisSetup.wixproj", "{A8B8A705-DA63-43D1-BA1D-B76F7C398313}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BingMapsCredentials", "BingMapsCredentials\BingMapsCredentials.csproj", "{7D5304F9-6864-4E33-B9A2-78597BB86F8E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpikeAccountManager", "..\SpikeAccountManager\SpikeAccountManager.csproj", "{D65594C8-EA2E-46CA-A756-B1634EDC3AE3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -50,18 +50,6 @@ Global
 		{E514A80B-E1D4-4BE4-A6EE-21685FB37FD7}.Release|x64.Build.0 = Release|Any CPU
 		{E514A80B-E1D4-4BE4-A6EE-21685FB37FD7}.Release|x86.ActiveCfg = Release|Any CPU
 		{E514A80B-E1D4-4BE4-A6EE-21685FB37FD7}.Release|x86.Build.0 = Release|Any CPU
-		{D65594C8-EA2E-46CA-A756-B1634EDC3AE3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D65594C8-EA2E-46CA-A756-B1634EDC3AE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D65594C8-EA2E-46CA-A756-B1634EDC3AE3}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{D65594C8-EA2E-46CA-A756-B1634EDC3AE3}.Debug|x64.Build.0 = Debug|Any CPU
-		{D65594C8-EA2E-46CA-A756-B1634EDC3AE3}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{D65594C8-EA2E-46CA-A756-B1634EDC3AE3}.Debug|x86.Build.0 = Debug|Any CPU
-		{D65594C8-EA2E-46CA-A756-B1634EDC3AE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D65594C8-EA2E-46CA-A756-B1634EDC3AE3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D65594C8-EA2E-46CA-A756-B1634EDC3AE3}.Release|x64.ActiveCfg = Release|Any CPU
-		{D65594C8-EA2E-46CA-A756-B1634EDC3AE3}.Release|x64.Build.0 = Release|Any CPU
-		{D65594C8-EA2E-46CA-A756-B1634EDC3AE3}.Release|x86.ActiveCfg = Release|Any CPU
-		{D65594C8-EA2E-46CA-A756-B1634EDC3AE3}.Release|x86.Build.0 = Release|Any CPU
 		{A8B8A705-DA63-43D1-BA1D-B76F7C398313}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{A8B8A705-DA63-43D1-BA1D-B76F7C398313}.Debug|x64.ActiveCfg = Debug|x86
 		{A8B8A705-DA63-43D1-BA1D-B76F7C398313}.Debug|x86.ActiveCfg = Debug|x86
@@ -82,6 +70,18 @@ Global
 		{7D5304F9-6864-4E33-B9A2-78597BB86F8E}.Release|x64.Build.0 = Release|Any CPU
 		{7D5304F9-6864-4E33-B9A2-78597BB86F8E}.Release|x86.ActiveCfg = Release|Any CPU
 		{7D5304F9-6864-4E33-B9A2-78597BB86F8E}.Release|x86.Build.0 = Release|Any CPU
+		{D65594C8-EA2E-46CA-A756-B1634EDC3AE3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D65594C8-EA2E-46CA-A756-B1634EDC3AE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D65594C8-EA2E-46CA-A756-B1634EDC3AE3}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D65594C8-EA2E-46CA-A756-B1634EDC3AE3}.Debug|x64.Build.0 = Debug|Any CPU
+		{D65594C8-EA2E-46CA-A756-B1634EDC3AE3}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D65594C8-EA2E-46CA-A756-B1634EDC3AE3}.Debug|x86.Build.0 = Debug|Any CPU
+		{D65594C8-EA2E-46CA-A756-B1634EDC3AE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D65594C8-EA2E-46CA-A756-B1634EDC3AE3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D65594C8-EA2E-46CA-A756-B1634EDC3AE3}.Release|x64.ActiveCfg = Release|Any CPU
+		{D65594C8-EA2E-46CA-A756-B1634EDC3AE3}.Release|x64.Build.0 = Release|Any CPU
+		{D65594C8-EA2E-46CA-A756-B1634EDC3AE3}.Release|x86.ActiveCfg = Release|Any CPU
+		{D65594C8-EA2E-46CA-A756-B1634EDC3AE3}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

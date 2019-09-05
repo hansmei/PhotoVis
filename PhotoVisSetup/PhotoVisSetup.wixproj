@@ -75,7 +75,7 @@
       <Output TaskParameter="Assemblies" ItemName="AssemblyVersion" />
     </GetAssemblyIdentity>
     <Copy SourceFiles=".\bin\$(Configuration)\$(OutputName).msi" DestinationFiles=".\bin\$(Configuration)\PhotoVisSetup.%(AssemblyVersion.Version).msi" />
-    <Delete Files=".\bin\$(Configuration)\$(OutputName).msi" />
+    <!--<Delete Files=".\bin\$(Configuration)\$(OutputName).msi" />-->
   </Target>
   <PropertyGroup>
     <PostBuildEvent />

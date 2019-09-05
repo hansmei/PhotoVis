@@ -95,6 +95,7 @@ namespace PhotoVis
         {
             base.OnStartup(e);
 
+
             // Fetch the user account
             SpikeAccountManager.AccountWindow window = new SpikeAccountManager.AccountWindow();
 
